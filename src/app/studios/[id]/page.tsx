@@ -10,9 +10,12 @@ import {
   CarouselPrevious,
   type CarouselApi,
 } from "@/components/ui/carousel";
+import { useRouter } from "next/navigation";
 
 export default function StudioDetailsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [customerEmail, setCustomerEmail] = useState("");
+  const [bookingLoading, setBookingLoading] = useState(false);
   const [bookingDate, setBookingDate] = useState("");
   const [startTime, setStartTime] = useState("");
   const [hours, setHours] = useState(2);
@@ -30,10 +33,9 @@ export default function StudioDetailsPage() {
     maxCapacity: 15,
     location: "Downtown LA, Creative District",
     images: [
-      "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?auto=format&fit=crop&q=80&w=1000",
+      "https://images.unsplash.com/photo-1655831068474-00da7930d340?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D",
       "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=1000",
       "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&q=80&w=1000",
-      "https://images.unsplash.com/photo-1527011046414-478ddf501aaf?auto=format&fit=crop&q=80&w=1000",
       "https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?auto=format&fit=crop&q=80&w=1000",
       "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=1000",
     ],
@@ -74,10 +76,75 @@ export default function StudioDetailsPage() {
     return () => clearInterval(interval);
   }, [api]);
 
-  const handleBookingSubmit = (e: React.FormEvent) => {
+  const formatTime = (time: string) => {
+    const [hour, minute] = time.split(":").map(Number);
+    const period = hour >= 12 ? "PM" : "AM";
+    const formattedHour = hour % 12 || 12;
+
+    return `${String(formattedHour).padStart(2, "0")}:${String(minute).padStart(2, "0")} ${period}`;
+  };
+
+  const router = useRouter();
+  const handleBookingSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    alert("Booking request submitted successfully! Status: Pending.");
-    setIsModalOpen(false);
+
+    if (!bookingDate || !startTime || !customerEmail || hours < 1) {
+      alert("Please fill in all booking information.");
+      return;
+    }
+
+    try {
+      setBookingLoading(true);
+
+      const [hour, minute] = startTime.split(":").map(Number);
+      const endMinutes = hour * 60 + minute + hours * 60;
+
+      const endTime = `${String(Math.floor(endMinutes / 60) % 24).padStart(2, "0")}:${String(endMinutes % 60).padStart(2, "0")}`;
+
+      const timeSlot = `${formatTime(startTime)} - ${formatTime(endTime)}`;
+      const totalAmount = studio.hourlyRate * hours;
+
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/bookings`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            studioId: studio._id,
+            studioTitle: studio.title,
+            category: studio.category,
+            bookingDate,
+            timeSlot,
+            totalAmount,
+            customerEmail,
+          }),
+        },
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Booking failed");
+      }
+
+      alert("Reservation submitted! Your booking is Pending.");
+
+      setIsModalOpen(false);
+      setBookingDate("");
+      setStartTime("");
+      setHours(2);
+
+      router.push("/my-bookings");
+    } catch (error) {
+      console.error("Booking error:", error);
+      alert(
+        error instanceof Error ? error.message : "Failed to create booking.",
+      );
+    } finally {
+      setBookingLoading(false);
+    }
   };
 
   return (
@@ -102,8 +169,9 @@ export default function StudioDetailsPage() {
                       <Image
                         src={img}
                         alt={`${studio.title} ${index + 1}`}
-                        className="object-cover"
-                        fill
+                        className="object-cover w-full h-full"
+                        width={500}
+                        height={300}
                       />
                     </div>
                   </CarouselItem>
@@ -128,8 +196,9 @@ export default function StudioDetailsPage() {
                   <Image
                     src={img}
                     alt="Thumbnail"
-                    className="object-cover"
-                    fill
+                    className="object-cover w-full h-full"
+                    width={500}
+                    height={300}
                   />
                 </button>
               ))}
@@ -223,8 +292,9 @@ export default function StudioDetailsPage() {
                 <Image
                   src={studio.hostAvatar}
                   alt={studio.hostName}
-                  className="object-cover"
-                  fill
+                  className="object-cover w-full h-full"
+                  width={500}
+                  height={300}
                 />
               </div>
               <div>
@@ -263,6 +333,20 @@ export default function StudioDetailsPage() {
             </div>
 
             <form onSubmit={handleBookingSubmit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-medium text-slate-300 uppercase mb-1">
+                  Customer Email
+                </label>
+
+                <input
+                  type="email"
+                  value={customerEmail}
+                  onChange={(e) => setCustomerEmail(e.target.value)}
+                  placeholder="Enter your email"
+                  required
+                  className="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500"
+                />
+              </div>
               <div>
                 <label className="block text-xs font-medium text-slate-300 uppercase mb-1">
                   Booking Date
@@ -327,9 +411,10 @@ export default function StudioDetailsPage() {
                 </button>
                 <button
                   type="submit"
-                  className="w-1/2 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-sm font-medium shadow-lg shadow-indigo-600/30"
+                  disabled={bookingLoading}
+                  className="w-1/2 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-sm font-medium disabled:opacity-50"
                 >
-                  Confirm Booking
+                  {bookingLoading ? "Booking..." : "Confirm Booking"}
                 </button>
               </div>
             </form>

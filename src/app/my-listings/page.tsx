@@ -120,7 +120,7 @@ export default function MyListingsPage() {
                     <Image
                       src={
                         // studio.imageUrl ||
-                        "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?auto=format&fit=crop&q=80&w=300"
+                        "https://images.unsplash.com/photo-1655831068474-00da7930d340?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D"
                       }
                       alt={studio.title}
                       className="w-12 h-12 rounded-lg object-cover"
