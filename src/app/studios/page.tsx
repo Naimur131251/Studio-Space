@@ -1,85 +1,100 @@
 "use client";
 
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
-// Mock explore studios data
-const allStudios = [
-  {
-    _id: "1",
-    title: "Cyc Wall Studio Pro",
-    category: "Photo Studio",
-    hourlyRate: 60,
-    rating: 4.9,
-    location: "Downtown LA, Creative District",
-    imageUrl:
-      "https://images.unsplash.com/photo-1655831068474-00da7930d340?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D",
-  },
-  {
-    _id: "2",
-    title: "Cinema Sound Stage Alpha",
-    category: "Film Stage",
-    hourlyRate: 120,
-    rating: 4.8,
-    location: "Brooklyn Arts Hub, NY",
-    imageUrl:
-      "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=600",
-  },
-  {
-    _id: "3",
-    title: "Podcast Lounge Deluxe",
-    category: "Podcast Lounge",
-    hourlyRate: 45,
-    rating: 4.9,
-    location: "SoHo Media Center, NY",
-    imageUrl:
-      "https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&fit=crop&q=80&w=600",
-  },
-  {
-    _id: "4",
-    title: "Acoustic Music Suite",
-    category: "Music Suite",
-    hourlyRate: 75,
-    rating: 4.7,
-    location: "Nashville Sound Row, TN",
-    imageUrl:
-      "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=600",
-  },
-  {
-    _id: "5",
-    title: "Minimalist Natural Light Loft",
-    category: "Photo Studio",
-    hourlyRate: 50,
-    rating: 4.6,
-    location: "Silver Lake, CA",
-    imageUrl:
-      "https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&q=80&w=600",
-  },
-  {
-    _id: "6",
-    title: "Indie Band Jam & Recording Room",
-    category: "Music Suite",
-    hourlyRate: 65,
-    rating: 4.9,
-    location: "Austin Music District, TX",
-    imageUrl:
-      "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=600",
-  },
+// Studio Type
+interface Studio {
+  _id: string;
+  title: string;
+  category: string;
+  hourlyRate: number;
+  rating: number;
+  location: string;
+  imageUrl: string;
+}
+
+// Categories
+const categories = [
+  "All",
+  "Photo Studio",
+  "Film Stage",
+  "Podcast Lounge",
+  "Music Suite",
+  "Workshop",
 ];
 
 export default function ExploreStudiosPage() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const filteredStudios = allStudios.filter((studio) => {
-    const matchesCategory =
-      selectedCategory === "All" || studio.category === selectedCategory;
-    const matchesSearch =
-      studio.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      studio.location.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
+  const [studios, setStudios] = useState<Studio[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  // Fetch studios from Express API
+  useEffect(() => {
+    const controller = new AbortController();
+
+    const fetchStudios = async () => {
+      try {
+        setLoading(true);
+        setError("");
+
+        const params = new URLSearchParams();
+
+        if (selectedCategory !== "All") {
+          params.set("category", selectedCategory);
+        }
+
+        if (searchQuery.trim()) {
+          params.set("search", searchQuery.trim());
+        }
+
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/studios?${params.toString()}`,
+          {
+            signal: controller.signal,
+            cache: "no-store",
+          },
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch studios");
+        }
+
+        const data = await response.json();
+
+        setStudios(data.studios || []);
+      } catch (error) {
+        if (error instanceof Error && error.name === "AbortError") {
+          return;
+        }
+
+        console.error("Fetch studios error:", error);
+
+        setError("Unable to load studios. Please try again.");
+        setStudios([]);
+      } finally {
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchStudios();
+
+    return () => {
+      controller.abort();
+    };
+  }, [selectedCategory, searchQuery]);
+
+  // Reset filters
+  const handleResetFilters = () => {
+    setSelectedCategory("All");
+    setSearchQuery("");
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8">
@@ -89,11 +104,13 @@ export default function ExploreStudiosPage() {
           <h1 className="text-3xl font-extrabold text-white tracking-tight">
             Explore Studios
           </h1>
+
           <p className="text-slate-400 text-sm mt-1">
             Discover and filter professional creative spaces for your next
             project
           </p>
         </div>
+
         <div className="flex items-center gap-3 w-full md:w-auto">
           <input
             type="text"
@@ -109,15 +126,9 @@ export default function ExploreStudiosPage() {
         {/* Sidebar Filter */}
         <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 h-fit space-y-6">
           <h3 className="font-semibold text-white text-base">Categories</h3>
+
           <div className="space-y-2">
-            {[
-              "All",
-              "Photo Studio",
-              "Film Stage",
-              "Podcast Lounge",
-              "Music Suite",
-              "Workshop",
-            ].map((cat) => (
+            {categories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
@@ -135,24 +146,61 @@ export default function ExploreStudiosPage() {
 
         {/* Studios Grid */}
         <div className="lg:col-span-3">
-          {filteredStudios.length === 0 ? (
+          {/* Loading State */}
+          {loading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Array.from({ length: 6 }).map((_, index) => (
+                <div
+                  key={index}
+                  className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden animate-pulse"
+                >
+                  <div className="h-48 bg-slate-800" />
+
+                  <div className="p-5 space-y-3">
+                    <div className="h-4 bg-slate-800 rounded w-3/4" />
+                    <div className="h-3 bg-slate-800 rounded w-1/2" />
+                    <div className="h-5 bg-slate-800 rounded w-1/3" />
+                  </div>
+
+                  <div className="p-5 pt-0">
+                    <div className="h-10 bg-slate-800 rounded-xl" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : error ? (
+            /* Error State */
+            <div className="text-center py-20 bg-slate-900/40 border border-slate-800 rounded-2xl">
+              <p className="text-red-400 text-base">{error}</p>
+
+              <button
+                onClick={() => {
+                  setSearchQuery((prev) => prev + " ");
+                  setSearchQuery((prev) => prev.trim());
+                }}
+                className="mt-4 px-4 py-2 bg-indigo-600 text-white text-sm rounded-xl font-medium"
+              >
+                Try Again
+              </button>
+            </div>
+          ) : studios.length === 0 ? (
+            /* Empty State */
             <div className="text-center py-20 bg-slate-900/40 border border-slate-800 rounded-2xl">
               <p className="text-slate-400 text-base">
                 No studios found matching your criteria.
               </p>
+
               <button
-                onClick={() => {
-                  setSelectedCategory("All");
-                  setSearchQuery("");
-                }}
+                onClick={handleResetFilters}
                 className="mt-4 px-4 py-2 bg-indigo-600 text-white text-sm rounded-xl font-medium"
               >
                 Reset Filters
               </button>
             </div>
           ) : (
+            /* Studio Cards */
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredStudios.map((studio) => (
+              {studios.map((studio) => (
                 <div
                   key={studio._id}
                   className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl flex flex-col justify-between group hover:border-slate-700 transition-all"
@@ -166,23 +214,28 @@ export default function ExploreStudiosPage() {
                         width={500}
                         height={500}
                       />
+
                       <span className="absolute top-3 left-3 bg-slate-950/80 backdrop-blur-md text-indigo-400 text-xs font-semibold px-3 py-1 rounded-full border border-slate-700">
                         {studio.category}
                       </span>
                     </div>
+
                     <div className="p-5 space-y-2">
                       <div className="flex justify-between items-center">
                         <h3 className="font-semibold text-white text-base truncate">
                           {studio.title}
                         </h3>
+
                         <div className="flex items-center gap-1 text-amber-400 text-sm font-medium">
                           <span>★</span>
                           <span>{studio.rating}</span>
                         </div>
                       </div>
+
                       <p className="text-xs text-slate-400 truncate">
                         {studio.location}
                       </p>
+
                       <p className="text-indigo-400 font-bold text-lg">
                         ${studio.hourlyRate}{" "}
                         <span className="text-xs font-normal text-slate-400">
@@ -191,6 +244,7 @@ export default function ExploreStudiosPage() {
                       </p>
                     </div>
                   </div>
+
                   <div className="p-5 pt-0">
                     <Link
                       href={`/studios/${studio._id}`}
