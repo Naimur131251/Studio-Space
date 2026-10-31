@@ -4,7 +4,10 @@ export default function ExtraHome() {
   return (
     <div className="space-y-20 py-12">
       {/* Section 1: How Booking Works */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+        id="how-it-works"
+      >
         <div className="text-center max-w-2xl mx-auto mb-12">
           <h2 className="text-2xl md:text-3xl font-bold tracking-tight">
             How Booking Works
@@ -56,7 +59,10 @@ export default function ExtraHome() {
       </section>
 
       {/* Section 2: Host Guarantee & Creator Support */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 bg-linear-to-b from-slate-900/40 to-slate-900/90 border border-slate-800/80 rounded-3xl p-8 md:p-12">
+      <section
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 bg-linear-to-b from-slate-900/40 to-slate-900/90 border border-slate-800/80 rounded-3xl p-8 md:p-12"
+        id="about"
+      >
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
           <div className="space-y-4">
             <span className="text-indigo-400 font-semibold text-xs tracking-widest uppercase">
