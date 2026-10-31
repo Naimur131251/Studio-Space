@@ -1,38 +1,53 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
-export default function MyListingsPage() {
-  const [listings, setListings] = useState([
-    {
-      _id: "1",
-      title: "Cyc Wall Studio Pro",
-      category: "Photo Studio",
-      hourlyRate: 60,
-      location: "Downtown LA",
-      imageUrl:
-        "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?auto=format&fit=crop&q=80&w=300",
-    },
-    {
-      _id: "2",
-      title: "Cinema Sound Stage Alpha",
-      category: "Film Stage",
-      hourlyRate: 120,
-      location: "Brooklyn Arts Hub",
-      imageUrl:
-        "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=300",
-    },
-  ]);
+interface StudioListing {
+  _id: string;
+  title: string;
+  category: string;
+  hourlyRate: number;
+  location: string;
+  imageUrl: string;
+}
 
+export default function MyListingsPage() {
+  const [listings, setListings] = useState<StudioListing[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
-  const handleDelete = () => {
+  useEffect(() => {
+    const fetchListings = async () => {
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/my-listings`,
+          {
+            cache: "no-store", // রি-ফ্রেশে সবসময় লেটেস্ট ডেটা পাওয়ার জন্য
+          },
+        );
+        const data = await response.json();
+        setListings(data);
+      } catch (error) {
+        console.error("Error fetching listings:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchListings();
+  }, []);
+
+  const handleDelete = async () => {
     if (deleteId) {
-      setListings(listings.filter((item) => item._id !== deleteId));
-      setDeleteId(null);
-      alert("Listing deleted successfully!");
+      try {
+        setListings(listings.filter((item) => item._id !== deleteId));
+        setDeleteId(null);
+        alert("Listing deleted successfully!");
+      } catch (error) {
+        console.error("Error deleting listing:", error);
+      }
     }
   };
 
@@ -40,7 +55,9 @@ export default function MyListingsPage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8">
       <div className="flex justify-between items-center border-b border-slate-800 pb-6">
         <div>
-          <h1 className="text-3xl font-extrabold">My Studio Listings</h1>
+          <h1 className="text-3xl font-extrabold text-white">
+            My Studio Listings
+          </h1>
           <p className="text-slate-400 text-sm mt-1">
             Manage, edit, or delete your posted studio workspaces
           </p>
@@ -53,7 +70,13 @@ export default function MyListingsPage() {
         </Link>
       </div>
 
-      {listings.length === 0 ? (
+      {loading ? (
+        <div className="text-center py-20 bg-slate-900 border border-slate-800 rounded-2xl">
+          <p className="text-indigo-400 font-medium animate-pulse">
+            Loading listings...
+          </p>
+        </div>
+      ) : listings.length === 0 ? (
         <div className="text-center py-20 bg-slate-900 border border-slate-800 rounded-2xl">
           <p className="text-slate-400">
             You haven&apos;t listed any studio workspaces yet.
@@ -79,11 +102,14 @@ export default function MyListingsPage() {
                 >
                   <td className="px-6 py-4 flex items-center gap-3">
                     <Image
-                      src={studio.imageUrl}
+                      src={
+                        // studio.imageUrl ||
+                        "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?auto=format&fit=crop&q=80&w=300"
+                      }
                       alt={studio.title}
                       className="w-12 h-12 rounded-lg object-cover"
-                      width={500}
-                      height={500}
+                      width={50}
+                      height={50}
                     />
                     <span className="font-semibold text-white">
                       {studio.title}

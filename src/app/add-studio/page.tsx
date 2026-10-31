@@ -18,7 +18,7 @@ export default function AddStudioPage() {
 
     try {
       const result = await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/studios`,
+        `${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/add-studios`,
         {
           method: "POST",
           headers: {
