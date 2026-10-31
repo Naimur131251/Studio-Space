@@ -3,6 +3,7 @@
 import { Suspense, use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "@/components/ui/toast";
+import { getTokenFromClient } from "@/lib/getTokenFromClient";
 
 interface StudioFormData {
   title: string;
@@ -122,12 +123,14 @@ export function UpdateStudio({ params }: { params: Promise<{ id: string }> }) {
           .filter(Boolean),
       };
 
+      const token = await getTokenFromClient()
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/studios/${id}`,
         {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
+            authorization: `Bearer ${token}`
           },
           body: JSON.stringify(updatedData),
         },

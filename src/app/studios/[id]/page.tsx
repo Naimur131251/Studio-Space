@@ -11,10 +11,10 @@ import {
   type CarouselApi,
 } from "@/components/ui/carousel";
 import { useRouter } from "next/navigation";
+import { getTokenFromClient } from "@/lib/getTokenFromClient";
 
 export default function StudioDetailsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [customerEmail, setCustomerEmail] = useState("");
   const [bookingLoading, setBookingLoading] = useState(false);
   const [bookingDate, setBookingDate] = useState("");
   const [startTime, setStartTime] = useState("");
@@ -88,7 +88,7 @@ export default function StudioDetailsPage() {
   const handleBookingSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!bookingDate || !startTime || !customerEmail || hours < 1) {
+    if (!bookingDate || !startTime || hours < 1) {
       alert("Please fill in all booking information.");
       return;
     }
@@ -96,20 +96,37 @@ export default function StudioDetailsPage() {
     try {
       setBookingLoading(true);
 
+      // Calculate booking time
       const [hour, minute] = startTime.split(":").map(Number);
+
       const endMinutes = hour * 60 + minute + hours * 60;
 
-      const endTime = `${String(Math.floor(endMinutes / 60) % 24).padStart(2, "0")}:${String(endMinutes % 60).padStart(2, "0")}`;
+      const endTime = `${String(Math.floor(endMinutes / 60) % 24).padStart(
+        2,
+        "0",
+      )}:${String(endMinutes % 60).padStart(2, "0")}`;
 
       const timeSlot = `${formatTime(startTime)} - ${formatTime(endTime)}`;
+
       const totalAmount = studio.hourlyRate * hours;
 
+      // Get JWT token from Better Auth
+      const token = await getTokenFromClient();
+      console.log("Token exists:", Boolean(token));
+      console.log("Token parts:", token?.split(".").length);
+
+      if (!token) {
+        throw new Error("Please login again to book a studio.");
+      }
+
+      // Send booking request
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/bookings`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
             studioId: studio._id,
@@ -118,7 +135,6 @@ export default function StudioDetailsPage() {
             bookingDate,
             timeSlot,
             totalAmount,
-            customerEmail,
           }),
         },
       );
@@ -129,6 +145,7 @@ export default function StudioDetailsPage() {
         throw new Error(data.message || "Booking failed");
       }
 
+      // Success
       alert("Reservation submitted! Your booking is Pending.");
 
       setIsModalOpen(false);
@@ -139,6 +156,7 @@ export default function StudioDetailsPage() {
       router.push("/my-bookings");
     } catch (error) {
       console.error("Booking error:", error);
+
       alert(
         error instanceof Error ? error.message : "Failed to create booking.",
       );
@@ -333,20 +351,6 @@ export default function StudioDetailsPage() {
             </div>
 
             <form onSubmit={handleBookingSubmit} className="space-y-4">
-              <div>
-                <label className="block text-xs font-medium text-slate-300 uppercase mb-1">
-                  Customer Email
-                </label>
-
-                <input
-                  type="email"
-                  value={customerEmail}
-                  onChange={(e) => setCustomerEmail(e.target.value)}
-                  placeholder="Enter your email"
-                  required
-                  className="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500"
-                />
-              </div>
               <div>
                 <label className="block text-xs font-medium text-slate-300 uppercase mb-1">
                   Booking Date

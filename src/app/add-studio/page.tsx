@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "@/components/ui/toast";
+import { getTokenFromClient } from "@/lib/getTokenFromClient";
 
 export default function AddStudioPage() {
   const router = useRouter();
@@ -17,12 +18,14 @@ export default function AddStudioPage() {
     const studioData = Object.fromEntries(formData.entries());
 
     try {
+      const token = await getTokenFromClient();
       const result = await fetch(
         `${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/add-studios`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(studioData),
         },

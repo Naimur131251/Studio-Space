@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { getTokenFromClient } from "@/lib/getTokenFromClient";
 
 interface StudioListing {
   _id: string;
@@ -21,16 +22,39 @@ export default function MyListingsPage() {
   useEffect(() => {
     const fetchListings = async () => {
       try {
+        const token = await getTokenFromClient();
+
+        console.log("JWT received:", !!token);
+
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/my-listings`,
           {
-            cache: "no-store", // রি-ফ্রেশে সবসময় লেটেস্ট ডেটা পাওয়ার জন্য
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            cache: "no-store",
           },
         );
+
+        console.log("Response status:", response.status);
+
+        if (!response.ok) {
+          console.log(`HTTP Error: ${response.status}`);
+        }
+
         const data = await response.json();
+
+        console.log("API RESPONSE:", data);
+        console.log("Is Array:", Array.isArray(data));
+
+        if (!Array.isArray(data)) {
+          throw new Error("API response is not an array");
+        }
+
         setListings(data);
       } catch (error) {
         console.error("Error fetching listings:", error);
+        setListings([]);
       } finally {
         setLoading(false);
       }
@@ -43,10 +67,15 @@ export default function MyListingsPage() {
     if (!deleteId) return;
 
     try {
+      const token = await getTokenFromClient();
+
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/studios/${deleteId}`,
         {
           method: "DELETE",
+          headers: {
+            authorization: `Bearer ${token}`,
+          },
         },
       );
 
@@ -56,9 +85,7 @@ export default function MyListingsPage() {
         throw new Error(data.message || "Failed to delete listing");
       }
 
-      // Update UI after successful database deletion
       setListings((prev) => prev.filter((item) => item._id !== deleteId));
-
       setDeleteId(null);
       alert("Listing deleted successfully!");
     } catch (error) {
@@ -119,7 +146,7 @@ export default function MyListingsPage() {
                   <td className="px-6 py-4 flex items-center gap-3">
                     <Image
                       src={
-                        // studio.imageUrl ||
+                        studio.imageUrl ||
                         "https://images.unsplash.com/photo-1655831068474-00da7930d340?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D"
                       }
                       alt={studio.title}
