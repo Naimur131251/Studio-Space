@@ -2,39 +2,60 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "@/components/ui/toast";
 
 export default function AddStudioPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
-  // Read-only user state
-  const user = {
-    name: "Harry Studio",
-    email: "harry@studiospace.com",
-  };
-
-  const [formData, setFormData] = useState({
-    title: "",
-    category: "Photo Studio",
-    hourlyRate: "",
-    securityDeposit: "",
-    maxCapacity: "",
-    location: "",
-    imageUrl: "",
-    amenities: "",
-    overview: "",
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
 
-    // Mock MongoDB saving action
-    setTimeout(() => {
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    const studioData = Object.fromEntries(formData.entries());
+
+    try {
+      const result = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/studios`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(studioData),
+        },
+      );
+
+      const data = await result.json();
+
+      if (data.acknowledged || result.ok) {
+        toast.add({
+          title: "Studio added successfully!",
+          description: "Your studio has been listed on StudioSpace.",
+          type: "success",
+        });
+        form.reset();
+        router.push("/my-listings");
+      } else {
+        toast.add({
+          title: "Failed to add studio",
+          description:
+            data.message || "Something went wrong. Please try again.",
+          type: "error",
+        });
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      toast.add({
+        title: "Connection Error",
+        description: "Could not connect to the server.",
+        type: "error",
+      });
+    } finally {
       setLoading(false);
-      alert("Studio added successfully!");
-      router.push("/my-listings");
-    }, 1000);
+    }
   };
 
   return (
@@ -55,12 +76,9 @@ export default function AddStudioPage() {
               </label>
               <input
                 type="text"
+                name="title"
                 required
                 placeholder="e.g. Cinema Sound Stage Alpha"
-                value={formData.title}
-                onChange={(e) =>
-                  setFormData({ ...formData, title: e.target.value })
-                }
                 className="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500"
               />
             </div>
@@ -70,10 +88,8 @@ export default function AddStudioPage() {
                 Category
               </label>
               <select
-                value={formData.category}
-                onChange={(e) =>
-                  setFormData({ ...formData, category: e.target.value })
-                }
+                name="category"
+                defaultValue="Photo Studio"
                 className="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500"
               >
                 <option value="Photo Studio">Photo Studio</option>
@@ -92,12 +108,10 @@ export default function AddStudioPage() {
               </label>
               <input
                 type="number"
+                name="hourlyRate"
                 required
+                min={1}
                 placeholder="75"
-                value={formData.hourlyRate}
-                onChange={(e) =>
-                  setFormData({ ...formData, hourlyRate: e.target.value })
-                }
                 className="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500"
               />
             </div>
@@ -108,12 +122,10 @@ export default function AddStudioPage() {
               </label>
               <input
                 type="number"
+                name="securityDeposit"
                 required
+                min={0}
                 placeholder="150"
-                value={formData.securityDeposit}
-                onChange={(e) =>
-                  setFormData({ ...formData, securityDeposit: e.target.value })
-                }
                 className="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500"
               />
             </div>
@@ -124,12 +136,10 @@ export default function AddStudioPage() {
               </label>
               <input
                 type="number"
+                name="maxCapacity"
                 required
+                min={1}
                 placeholder="10"
-                value={formData.maxCapacity}
-                onChange={(e) =>
-                  setFormData({ ...formData, maxCapacity: e.target.value })
-                }
                 className="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500"
               />
             </div>
@@ -141,12 +151,9 @@ export default function AddStudioPage() {
             </label>
             <input
               type="text"
+              name="location"
               required
               placeholder="e.g. Downtown LA, Creative District"
-              value={formData.location}
-              onChange={(e) =>
-                setFormData({ ...formData, location: e.target.value })
-              }
               className="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500"
             />
           </div>
@@ -157,12 +164,9 @@ export default function AddStudioPage() {
             </label>
             <input
               type="url"
+              name="imageUrl"
               required
               placeholder="https://images.unsplash.com/..."
-              value={formData.imageUrl}
-              onChange={(e) =>
-                setFormData({ ...formData, imageUrl: e.target.value })
-              }
               className="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500"
             />
           </div>
@@ -173,11 +177,8 @@ export default function AddStudioPage() {
             </label>
             <input
               type="text"
+              name="amenities"
               placeholder="Cyc Wall, Soundproof, Green Screen, WiFi"
-              value={formData.amenities}
-              onChange={(e) =>
-                setFormData({ ...formData, amenities: e.target.value })
-              }
               className="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500"
             />
           </div>
@@ -187,13 +188,10 @@ export default function AddStudioPage() {
               Detailed Overview
             </label>
             <textarea
+              name="overview"
               rows={4}
               required
               placeholder="Describe your studio space, equipment, rules, and unique features..."
-              value={formData.overview}
-              onChange={(e) =>
-                setFormData({ ...formData, overview: e.target.value })
-              }
               className="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500"
             />
           </div>
@@ -207,7 +205,7 @@ export default function AddStudioPage() {
               <input
                 type="text"
                 readOnly
-                value={user.name}
+                value={"Naimur"}
                 className="bg-transparent text-slate-300 text-sm font-medium focus:outline-none w-full"
               />
             </div>
@@ -218,7 +216,7 @@ export default function AddStudioPage() {
               <input
                 type="email"
                 readOnly
-                value={user.email}
+                value={"naimur@mail"}
                 className="bg-transparent text-slate-300 text-sm font-medium focus:outline-none w-full"
               />
             </div>
@@ -227,7 +225,7 @@ export default function AddStudioPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-xl transition-all shadow-lg shadow-indigo-600/30 text-sm mt-2"
+            className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-xl transition-all shadow-lg shadow-indigo-600/30 text-sm mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? "Publishing Listing..." : "Publish Studio Listing"}
           </button>
