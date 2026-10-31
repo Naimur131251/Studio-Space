@@ -40,14 +40,30 @@ export default function MyListingsPage() {
   }, []);
 
   const handleDelete = async () => {
-    if (deleteId) {
-      try {
-        setListings(listings.filter((item) => item._id !== deleteId));
-        setDeleteId(null);
-        alert("Listing deleted successfully!");
-      } catch (error) {
-        console.error("Error deleting listing:", error);
+    if (!deleteId) return;
+
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/studios/${deleteId}`,
+        {
+          method: "DELETE",
+        },
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to delete listing");
       }
+
+      // Update UI after successful database deletion
+      setListings((prev) => prev.filter((item) => item._id !== deleteId));
+
+      setDeleteId(null);
+      alert("Listing deleted successfully!");
+    } catch (error) {
+      console.error("Error deleting listing:", error);
+      alert("Failed to delete listing!");
     }
   };
 
