@@ -2,23 +2,41 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import Image from "next/image";
+import { usePathname, useRouter } from "next/navigation";
+import { authClient } from "@/lib/auth-client";
 
 export default function Navbar() {
   const pathname = usePathname();
-  // Mock authentication state for preview (Replace with your auth hook/session)
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [userDropdownOpen, setUserDropdownOpen] = useState<boolean>(false);
+  const router = useRouter();
 
-  const user = {
-    name: "Harry Studio",
-    email: "harry@studiospace.com",
-    avatar:
-      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250",
-  };
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  // Better Auth Session
+  const { data: session, isPending } = authClient.useSession();
+
+  const user = session?.user;
+  const isAuthenticated = !!user;
 
   const isActive = (path: string) => pathname === path;
+
+  // Logout
+  const handleLogout = async () => {
+    try {
+      setLoggingOut(true);
+
+      await authClient.signOut();
+
+      setUserDropdownOpen(false);
+      router.refresh();
+      router.push("/");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    } finally {
+      setLoggingOut(false);
+    }
+  };
 
   return (
     <header className="sticky top-0 z-50 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 text-white">
@@ -39,6 +57,7 @@ export default function Navbar() {
             <circle cx="12" cy="12" r="3" />
             <path d="M12 2a10 10 0 0 1 8.66 5M2 12a10 10 0 0 1 5-8.66M12 22a10 10 0 0 1-8.66-5M22 12a10 10 0 0 1-5 8.66" />
           </svg>
+
           <span className="bg-linear-to-r from-white to-slate-400 bg-clip-text text-transparent">
             StudioSpace
           </span>
@@ -46,35 +65,31 @@ export default function Navbar() {
 
         {/* Navigation Links */}
         <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
-          <Link
-            href="/"
-            className={`transition-colors ${isActive("/") ? "text-indigo-400 font-semibold" : "text-slate-300 hover:text-white"}`}
-          >
-            Home
-          </Link>
-          <Link
-            href="/studios"
-            className={`transition-colors ${isActive("/studios") ? "text-indigo-400 font-semibold" : "text-slate-300 hover:text-white"}`}
-          >
-            Explore Studios
-          </Link>
-          <Link
-            href="/how-it-works"
-            className={`transition-colors ${isActive("/how-it-works") ? "text-indigo-400 font-semibold" : "text-slate-300 hover:text-white"}`}
-          >
-            How It Works
-          </Link>
-          <Link
-            href="/about"
-            className={`transition-colors ${isActive("/about") ? "text-indigo-400 font-semibold" : "text-slate-300 hover:text-white"}`}
-          >
-            About Us
-          </Link>
+          {[
+            { name: "Home", href: "/" },
+            { name: "Explore Studios", href: "/studios" },
+            { name: "How It Works", href: "/how-it-works" },
+            { name: "About Us", href: "/about" },
+          ].map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`transition-colors ${
+                isActive(item.href)
+                  ? "text-indigo-400 font-semibold"
+                  : "text-slate-300 hover:text-white"
+              }`}
+            >
+              {item.name}
+            </Link>
+          ))}
         </nav>
 
-        {/* Right Section / Auth Actions */}
+        {/* Authentication */}
         <div className="flex items-center gap-4">
-          {!isAuthenticated ? (
+          {isPending ? (
+            <div className="w-24 h-9 bg-slate-800 rounded-lg animate-pulse" />
+          ) : !isAuthenticated ? (
             <div className="flex items-center gap-3">
               <Link
                 href="/login"
@@ -82,6 +97,7 @@ export default function Navbar() {
               >
                 Login
               </Link>
+
               <Link
                 href="/register"
                 className="px-4 py-2 text-sm font-medium bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition-all shadow-md shadow-indigo-600/20"
@@ -91,15 +107,24 @@ export default function Navbar() {
             </div>
           ) : (
             <div className="relative">
+              {/* User Avatar */}
               <button
                 onClick={() => setUserDropdownOpen(!userDropdownOpen)}
                 className="flex items-center gap-3 focus:outline-none"
               >
-                <Image
-                  src={user.avatar}
-                  alt={user.name}
-                  className="w-9 h-9 rounded-full object-cover ring-2 ring-indigo-500"
-                />
+                {user.image ? (
+                  <Image
+                    src={user.image}
+                    alt={user.name || "User"}
+                    width={36}
+                    height={36}
+                    className="w-9 h-9 rounded-full object-cover ring-2 ring-indigo-500"
+                  />
+                ) : (
+                  <div className="w-9 h-9 rounded-full bg-indigo-600 flex items-center justify-center font-bold ring-2 ring-indigo-500">
+                    {user.name?.charAt(0).toUpperCase() || "U"}
+                  </div>
+                )}
               </button>
 
               {/* Dropdown Menu */}
@@ -107,10 +132,12 @@ export default function Navbar() {
                 <div className="absolute right-0 mt-2 w-56 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl py-2 text-sm text-slate-200 z-50">
                   <div className="px-4 py-2 border-b border-slate-700">
                     <p className="font-semibold text-white">{user.name}</p>
+
                     <p className="text-xs text-slate-400 truncate">
                       {user.email}
                     </p>
                   </div>
+
                   <Link
                     href="/add-studio"
                     className="block px-4 py-2 hover:bg-slate-700 transition-colors"
@@ -118,6 +145,7 @@ export default function Navbar() {
                   >
                     Add New Studio
                   </Link>
+
                   <Link
                     href="/my-listings"
                     className="block px-4 py-2 hover:bg-slate-700 transition-colors"
@@ -125,6 +153,7 @@ export default function Navbar() {
                   >
                     My Studio Listings
                   </Link>
+
                   <Link
                     href="/my-bookings"
                     className="block px-4 py-2 hover:bg-slate-700 transition-colors"
@@ -132,14 +161,13 @@ export default function Navbar() {
                   >
                     My Bookings
                   </Link>
+
                   <button
-                    onClick={() => {
-                      setIsAuthenticated(false);
-                      setUserDropdownOpen(false);
-                    }}
-                    className="w-full text-left px-4 py-2 text-red-400 hover:bg-slate-700 transition-colors border-t border-slate-700 mt-1"
+                    onClick={handleLogout}
+                    disabled={loggingOut}
+                    className="w-full text-left px-4 py-2 text-red-400 hover:bg-slate-700 transition-colors border-t border-slate-700 mt-1 disabled:opacity-50"
                   >
-                    Logout
+                    {loggingOut ? "Logging out..." : "Logout"}
                   </button>
                 </div>
               )}

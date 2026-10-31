@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react"; // Imported eye icons
+import { authClient } from "@/lib/auth-client";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -13,21 +14,38 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
 
-    if (!email || !password) {
+    if (!email.trim() || !password) {
       setError("Please fill in all required fields.");
       return;
     }
 
-    setLoading(true);
-    // Mock login action (Replace with actual BetterAuth / API call)
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      setLoading(true);
+
+      const { data, error } = await authClient.signIn.email({
+        email: email.trim(),
+        password,
+      });
+
+      if (error) {
+        setError(error.message || "Login failed. Please try again.");
+        return;
+      }
+
+      console.log("Login user:", data);
+
       router.push("/");
-    }, 1000);
+      router.refresh();
+    } catch (err) {
+      console.error("Login error:", err);
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleGoogleLogin = () => {

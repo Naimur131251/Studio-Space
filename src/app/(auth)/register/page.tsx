@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react"; // Imported eye icons
+import { authClient } from "@/lib/auth-client";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -22,11 +23,11 @@ export default function RegisterPage() {
     return hasUppercase && hasLowercase && isValidLength;
   };
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
 
-    if (!name || !email || !password) {
+    if (!name.trim() || !email.trim() || !password) {
       setError("Please fill in all required fields.");
       return;
     }
@@ -38,12 +39,31 @@ export default function RegisterPage() {
       return;
     }
 
-    setLoading(true);
-    setTimeout(() => {
+    try {
+      setLoading(true);
+
+      const { data, error } = await authClient.signUp.email({
+        name: name.trim(),
+        email: email.trim(),
+        password,
+        image: photoUrl.trim() || undefined,
+      });
+
+      if (error) {
+        setError(error.message || "Registration failed. Please try again.");
+        return;
+      }
+
+      console.log("Registered user:", data);
+
+      router.push("/");
+      router.refresh();
+    } catch (err) {
+      console.error("Registration error:", err);
+      setError("Something went wrong. Please try again.");
+    } finally {
       setLoading(false);
-      // Navigate to Login page upon successful registration as required
-      router.push("/login");
-    }, 1000);
+    }
   };
 
   const handleGoogleLogin = () => {
