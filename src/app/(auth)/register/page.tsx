@@ -1,8 +1,8 @@
 "use client";
-
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Eye, EyeOff } from "lucide-react"; // Imported eye icons
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -10,6 +10,7 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [photoUrl, setPhotoUrl] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false); // State to toggle visibility
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -80,6 +81,7 @@ export default function RegisterPage() {
               className="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500"
             />
           </div>
+
           <div>
             <label className="block text-xs font-medium text-slate-300 uppercase mb-1">
               Email Address
@@ -92,6 +94,7 @@ export default function RegisterPage() {
               className="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500"
             />
           </div>
+
           <div>
             <label className="block text-xs font-medium text-slate-300 uppercase mb-1">
               Photo URL (Optional)
@@ -104,17 +107,27 @@ export default function RegisterPage() {
               className="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500"
             />
           </div>
+
           <div>
             <label className="block text-xs font-medium text-slate-300 uppercase mb-1">
               Password
             </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded-xl pl-4 pr-11 py-2.5 text-sm focus:outline-none focus:border-indigo-500"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 focus:outline-none"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
             <p className="text-[11px] text-slate-500 mt-1">
               Must be 6 chars, include uppercase & lowercase.
             </p>
