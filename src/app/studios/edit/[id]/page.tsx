@@ -123,18 +123,40 @@ export function UpdateStudio({ params }: { params: Promise<{ id: string }> }) {
           .filter(Boolean),
       };
 
-      const token = await getTokenFromClient()
+      const token = await getTokenFromClient();
+
+      if (!token) {
+        toast.add({
+          title: "Authentication Required",
+          description:
+            "Unauthorized! Please login to check this page or perform this action.",
+          type: "error",
+        });
+        setLoading(false);
+        return;
+      }
+
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/studios/${id}`,
         {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
-            authorization: `Bearer ${token}`
+            authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(updatedData),
         },
       );
+
+      if (response.status === 401 || response.status === 403) {
+        toast.add({
+          title: "Session Expired",
+          description: "Unauthorized! Please login to check this page.",
+          type: "error",
+        });
+        setLoading(false);
+        return;
+      }
 
       const data = await response.json();
 
@@ -148,7 +170,6 @@ export function UpdateStudio({ params }: { params: Promise<{ id: string }> }) {
         type: "success",
       });
 
-      // Redirect after showing success toast
       setTimeout(() => {
         router.push("/my-listings");
       }, 1000);

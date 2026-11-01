@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react"; // Imported eye icons
 import { authClient } from "@/lib/auth-client";
+import { toast } from "@/components/ui/toast";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -12,7 +13,6 @@ export default function RegisterPage() {
   const [photoUrl, setPhotoUrl] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false); // State to toggle visibility
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   // Password validation: Uppercase, Lowercase, min length 6
@@ -25,17 +25,23 @@ export default function RegisterPage() {
 
   const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError("");
 
     if (!name.trim() || !email.trim() || !password) {
-      setError("Please fill in all required fields.");
+      toast.add({
+        title: "Validation Error",
+        description: "Please fill in all required fields.",
+        type: "info",
+      });
       return;
     }
 
     if (!validatePassword(password)) {
-      setError(
-        "Password must be at least 6 characters long and contain at least one uppercase and one lowercase letter.",
-      );
+      toast.add({
+        title: "Weak Password",
+        description:
+          "Password must be at least 6 characters long and contain at least one uppercase and one lowercase letter.",
+        type: "info",
+      });
       return;
     }
 
@@ -50,27 +56,58 @@ export default function RegisterPage() {
       });
 
       if (error) {
-        setError(error.message || "Registration failed. Please try again.");
+        toast.add({
+          title: "Registration Failed",
+          description:
+            error.message || "Registration failed. Please try again.",
+          type: "error",
+        });
         return;
       }
 
       console.log("Registered user:", data);
 
+      toast.add({
+        title: "Registration successfully!",
+        description: "Welcome to StudioSpace.",
+        type: "success",
+      });
+
       router.push("/");
       router.refresh();
     } catch (err) {
       console.error("Registration error:", err);
-      setError("Something went wrong. Please try again.");
+      toast.add({
+        title: "Failed to register",
+        description: "Something went wrong. Please try again.",
+        type: "error",
+      });
     } finally {
       setLoading(false);
     }
   };
 
   const handleGoogleLogin = async () => {
-    await authClient.signIn.social({
-      provider: "google",
-    });
-    router.push("/");
+    try {
+      await authClient.signIn.social({
+        provider: "google",
+      });
+
+      toast.add({
+        title: "Signing in...",
+        description: "Redirecting you to Google authentication.",
+        type: "info",
+      });
+
+      router.push("/");
+    } catch (err) {
+      console.error("Google login error:", err);
+      toast.add({
+        title: "Login Failed",
+        description: "Could not authenticate with Google.",
+        type: "error",
+      });
+    }
   };
 
   return (
@@ -84,12 +121,6 @@ export default function RegisterPage() {
             Join StudioSpace as a creator or host
           </p>
         </div>
-
-        {error && (
-          <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-sm p-3 rounded-xl text-center">
-            {error}
-          </div>
-        )}
 
         <form onSubmit={handleRegister} className="space-y-4">
           <div>

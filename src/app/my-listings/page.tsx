@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { getTokenFromClient } from "@/lib/getTokenFromClient";
+import { toast } from "@/components/ui/toast";
+import { useRouter } from "next/navigation";
 
 interface StudioListing {
   _id: string;
@@ -18,6 +20,7 @@ export default function MyListingsPage() {
   const [listings, setListings] = useState<StudioListing[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchListings = async () => {
@@ -26,11 +29,24 @@ export default function MyListingsPage() {
 
         console.log("JWT received:", !!token);
 
+        if (!token) {
+          toast.add({
+            title: "Access Denied",
+            description: "Unauthorized! Please login to check this page.",
+            type: "error",
+          });
+          router.push(
+            "/login?callbackUrl=" +
+              encodeURIComponent(window.location.pathname),
+          );
+          return;
+        }
+
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/my-listings`,
           {
             headers: {
-              Authorization: `Bearer ${token}`,
+              authorization: `Bearer ${token}`,
             },
             cache: "no-store",
           },
@@ -38,8 +54,22 @@ export default function MyListingsPage() {
 
         console.log("Response status:", response.status);
 
+        if (response.status === 401 || response.status === 403) {
+          toast.add({
+            title: "Session Expired",
+            description: "Unauthorized! Please login to check this page.",
+            type: "error",
+          });
+          router.push(
+            "/login?callbackUrl=" +
+              encodeURIComponent(window.location.pathname),
+          );
+          return;
+        }
+
         if (!response.ok) {
           console.log(`HTTP Error: ${response.status}`);
+          throw new Error("Failed to fetch listings from server.");
         }
 
         const data = await response.json();
@@ -52,22 +82,42 @@ export default function MyListingsPage() {
         }
 
         setListings(data);
-      } catch (error) {
+      } catch (error: unknown) {
         console.error("Error fetching listings:", error);
         setListings([]);
+
+        toast.add({
+          title: "Error fetching listings",
+          description:
+            error instanceof Error
+              ? error.message
+              : "Something went wrong while loading your listings.",
+          type: "error",
+        });
       } finally {
         setLoading(false);
       }
     };
 
     fetchListings();
-  }, []);
+  }, [router]);
 
   const handleDelete = async () => {
     if (!deleteId) return;
 
     try {
       const token = await getTokenFromClient();
+
+      if (!token) {
+        toast.add({
+          title: "Authentication Required",
+          description:
+            "Unauthorized! Please login to check this page or perform this action.",
+          type: "error",
+        });
+        setDeleteId(null);
+        return;
+      }
 
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/studios/${deleteId}`,
@@ -79,6 +129,16 @@ export default function MyListingsPage() {
         },
       );
 
+      if (response.status === 401 || response.status === 403) {
+        toast.add({
+          title: "Session Expired",
+          description: "Unauthorized! Please login to check this page.",
+          type: "error",
+        });
+        setDeleteId(null);
+        return;
+      }
+
       const data = await response.json();
 
       if (!response.ok) {
@@ -87,10 +147,25 @@ export default function MyListingsPage() {
 
       setListings((prev) => prev.filter((item) => item._id !== deleteId));
       setDeleteId(null);
-      alert("Listing deleted successfully!");
-    } catch (error) {
+
+      toast.add({
+        title: "Listing deleted successfully!",
+        description:
+          "The studio has been permanently removed from StudioSpace.",
+        type: "success",
+      });
+    } catch (error: unknown) {
       console.error("Error deleting listing:", error);
-      alert("Failed to delete listing!");
+      setDeleteId(null);
+
+      toast.add({
+        title: "Failed to delete listing",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Something went wrong. Please try again.",
+        type: "error",
+      });
     }
   };
 

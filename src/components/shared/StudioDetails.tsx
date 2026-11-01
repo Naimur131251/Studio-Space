@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/carousel";
 import { useParams, useRouter } from "next/navigation";
 import { getTokenFromClient } from "@/lib/getTokenFromClient";
+import { toast } from "../ui/toast";
 
 // Types
 interface Amenity {
@@ -139,11 +140,20 @@ export function StudioDetailsContant() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(payload),
       },
     );
+
+    if (response.status === 401 || response.status === 403) {
+      toast.add({
+        title: "Session Expired",
+        description: "Unauthorized! Please login to check this page.",
+        type: "error",
+      });
+      throw new Error("Unauthorized! Please login to check this page.");
+    }
 
     const data = await response.json();
 
@@ -182,7 +192,11 @@ export function StudioDetailsContant() {
         // Remove pending data only after successful booking.
         sessionStorage.removeItem(PENDING_BOOKING_KEY);
 
-        alert("Reservation submitted successfully!");
+        toast.add({
+          title: "Reservation submitted successfully!",
+          description: `Your pending booking for ${payload.studioTitle || "the studio"} has been completed.`,
+          type: "success",
+        });
 
         router.replace("/my-bookings");
       } catch (error) {
@@ -190,11 +204,14 @@ export function StudioDetailsContant() {
 
         console.error("Automatic booking error:", error);
 
-        alert(
-          error instanceof Error
-            ? error.message
-            : "Failed to complete booking.",
-        );
+        toast.add({
+          title: "Booking Completion Failed",
+          description:
+            error instanceof Error
+              ? error.message
+              : "Failed to complete your pending booking. Please try again.",
+          type: "error",
+        });
       } finally {
         setBookingLoading(false);
       }
@@ -242,11 +259,15 @@ export function StudioDetailsContant() {
     if (!studio) return;
 
     if (!bookingDate || !startTime || hours < 1 || hours > 12) {
-      alert("Please fill in all booking information.");
+      toast.add({
+        title: "Missing Information",
+        description:
+          "Please fill in a valid date, start time, and duration (1-12 hours).",
+        type: "info",
+      });
       return;
     }
 
-    // Prevent past dates
     const today = new Date();
     const localToday = [
       today.getFullYear(),
@@ -255,7 +276,12 @@ export function StudioDetailsContant() {
     ].join("-");
 
     if (bookingDate < localToday) {
-      alert("Please select a valid booking date.");
+      toast.add({
+        title: "Invalid Booking Date",
+        description:
+          "You cannot book a studio for a past date. Please select today or a future date.",
+        type: "info",
+      });
       return;
     }
 
@@ -263,12 +289,7 @@ export function StudioDetailsContant() {
       setBookingLoading(true);
 
       const [hour, minute] = startTime.split(":").map(Number);
-
       const endMinutes = hour * 60 + minute + hours * 60;
-
-      // if (endMinutes > 24 * 60) {
-      //   throw new Error("Booking cannot extend beyond midnight.");
-      // }
 
       const endHour = Math.floor(endMinutes / 60);
       const endMinute = endMinutes % 60;
@@ -277,7 +298,6 @@ export function StudioDetailsContant() {
         const [h, m] = time.split(":").map(Number);
         const period = h >= 12 ? "PM" : "AM";
         const formattedHour = h % 12 || 12;
-
         return `${String(formattedHour).padStart(2, "0")}:${String(m).padStart(2, "0")} ${period}`;
       };
 
@@ -303,14 +323,18 @@ export function StudioDetailsContant() {
       } catch (error) {
         console.error("Authentication required:", error);
 
+        toast.add({
+          title: "Login Required",
+          description: "Please log in to complete your studio booking.",
+          type: "info",
+        });
+
         router.push(
           `/login?callbackUrl=${encodeURIComponent(window.location.pathname)}`,
         );
-
         return;
       }
 
-      // User is not logged in
       if (!token) {
         sessionStorage.setItem(
           PENDING_BOOKING_KEY,
@@ -319,15 +343,24 @@ export function StudioDetailsContant() {
 
         const callbackUrl = `/studios/${id}`;
 
-        router.push(`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`);
+        toast.add({
+          title: "Redirecting to Login",
+          description:
+            "Saving your booking details. Complete login to finish the process.",
+          type: "info",
+        });
 
+        router.push(`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`);
         return;
       }
 
-      // User is logged in
       await submitBooking(bookingPayload, token);
 
-      alert("Reservation submitted successfully!");
+      toast.add({
+        title: "Reservation submitted successfully!",
+        description: `Your slot for ${studio.title} has been booked. Check details in your dashboard.`,
+        type: "success",
+      });
 
       setIsModalOpen(false);
       setBookingDate("");
@@ -338,9 +371,14 @@ export function StudioDetailsContant() {
     } catch (error) {
       console.error("Booking error:", error);
 
-      alert(
-        error instanceof Error ? error.message : "Failed to create booking.",
-      );
+      toast.add({
+        title: "Booking Failed",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Could not create booking. Please try again.",
+        type: "error",
+      });
     } finally {
       setBookingLoading(false);
     }
@@ -705,9 +743,16 @@ export function StudioDetailsContant() {
               <div className="flex gap-3 pt-2">
                 <button
                   type="button"
-                  onClick={() => setIsModalOpen(false)}
+                  onClick={() => {
+                    setIsModalOpen(false);
+                    toast.add({
+                      title: "Booking cancelled",
+                      description: "Your booking request has been discarded.",
+                      type: "info",
+                    });
+                  }}
                   disabled={bookingLoading}
-                  className="w-1/2 py-2.5 bg-slate-800 text-slate-300 rounded-xl text-sm font-medium hover:bg-slate-700"
+                  className="w-1/2 py-2.5 bg-slate-800 text-slate-300 rounded-xl text-sm font-medium hover:bg-slate-700 disabled:opacity-50"
                 >
                   Cancel
                 </button>

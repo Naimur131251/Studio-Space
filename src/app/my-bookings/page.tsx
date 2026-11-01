@@ -1,7 +1,18 @@
 "use client";
 
+import { toast } from "@/components/ui/toast";
 import { getTokenFromClient } from "@/lib/getTokenFromClient";
 import { useCallback, useEffect, useState } from "react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 type BookingStatus = "pending" | "confirmed" | "completed" | "cancelled";
 
@@ -23,6 +34,10 @@ export default function MyBookingsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [cancellingId, setCancellingId] = useState<string | null>(null);
+  const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
+  const [selectedBookingId, setSelectedBookingId] = useState<string | null>(
+    null,
+  );
 
   // Fetch logged-in user's bookings
   const fetchMyBookings = useCallback(async () => {
@@ -38,17 +53,35 @@ export default function MyBookingsPage() {
 
       const token = await getTokenFromClient();
 
+      // ১. টোকেন না থাকলে (Unauthenticated) টোস্ট দেখিয়ে আটকে দেওয়া
       if (!token) {
-        throw new Error("Please login to view your bookings.");
+        toast.add({
+          title: "Access Denied",
+          description: "Unauthorized! Please login to check this page.",
+          type: "error",
+        });
+        // এখানে চাইলে ইউজারকে লগইন পেজে রিডাইরেক্ট করতে পারেন:
+        // router.push("/login?callbackUrl=" + encodeURIComponent(window.location.pathname));
+        return;
       }
 
       const response = await fetch(`${API_URL}/my-bookings`, {
         method: "GET",
         headers: {
-          Authorization: `Bearer ${token}`,
+          authorization: `Bearer ${token}`,
         },
         cache: "no-store",
       });
+
+      // ২. সার্ভার লেভেলে টোকেন ইনভ্যালিড বা এক্সপায়ার্ড হলে (৪০১ বা ৪০৩ এরর)
+      if (response.status === 401 || response.status === 403) {
+        toast.add({
+          title: "Session Expired",
+          description: "Unauthorized! Please login to check this page.",
+          type: "error",
+        });
+        return;
+      }
 
       const data = await response.json();
 
@@ -79,14 +112,24 @@ export default function MyBookingsPage() {
       }));
 
       setBookings(formattedBookings);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Fetch bookings error:", error);
-
+      setBookings([]);
       setError(
         error instanceof Error
           ? error.message
-          : "Something went wrong while fetching bookings.",
+          : "Something went wrong while fetching your bookings.",
       );
+
+      // ৩. নেটওয়ার্ক বা অন্য কোনো টেকনিক্যাল এররের জন্য টোস্ট
+      toast.add({
+        title: "Error Loading Bookings",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Something went wrong while fetching your bookings.",
+        type: "error",
+      });
     } finally {
       setLoading(false);
     }
@@ -101,12 +144,17 @@ export default function MyBookingsPage() {
   }, [fetchMyBookings]);
 
   // Cancel booking
-  const handleCancel = async (id: string) => {
-    const confirmed = window.confirm(
-      "Are you sure you want to cancel this booking?",
-    );
+  // Open cancel confirmation dialog
+  const handleCancel = (id: string) => {
+    setSelectedBookingId(id);
+    setIsCancelDialogOpen(true);
+  };
 
-    if (!confirmed) return;
+  // Confirm cancellation
+  const confirmCancel = async () => {
+    if (!selectedBookingId) return;
+
+    const id = selectedBookingId;
 
     try {
       if (!API_URL) {
@@ -118,15 +166,34 @@ export default function MyBookingsPage() {
       const token = await getTokenFromClient();
 
       if (!token) {
-        throw new Error("Please login again.");
+        toast.add({
+          title: "Authentication Required",
+          description:
+            "Unauthorized! Please login to check this page or perform this action.",
+          type: "error",
+        });
+        setIsCancelDialogOpen(false);
+        setSelectedBookingId(null);
+        return;
       }
 
       const response = await fetch(`${API_URL}/bookings/${id}/cancel`, {
         method: "PATCH",
         headers: {
-          Authorization: `Bearer ${token}`,
+          authorization: `Bearer ${token}`,
         },
       });
+
+      if (response.status === 401 || response.status === 403) {
+        toast.add({
+          title: "Session Expired",
+          description: "Unauthorized! Please login to check this page.",
+          type: "error",
+        });
+        setIsCancelDialogOpen(false);
+        setSelectedBookingId(null);
+        return;
+      }
 
       const data = await response.json();
 
@@ -140,13 +207,25 @@ export default function MyBookingsPage() {
         ),
       );
 
-      alert("Booking cancelled successfully!");
+      toast.add({
+        title: "Booking cancelled successfully!",
+        description: "Your studio reservation has been cancelled.",
+        type: "success",
+      });
+
+      setIsCancelDialogOpen(false);
+      setSelectedBookingId(null);
     } catch (error) {
       console.error("Cancel booking error:", error);
 
-      alert(
-        error instanceof Error ? error.message : "Failed to cancel booking.",
-      );
+      toast.add({
+        title: "Cancellation Failed",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Could not cancel your booking. Please try again.",
+        type: "error",
+      });
     } finally {
       setCancellingId(null);
     }
@@ -181,6 +260,52 @@ export default function MyBookingsPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8">
+      <AlertDialog
+        open={isCancelDialogOpen}
+        onOpenChange={(open) => {
+          if (!cancellingId) {
+            setIsCancelDialogOpen(open);
+
+            if (!open) {
+              setSelectedBookingId(null);
+            }
+          }
+        }}
+      >
+        <AlertDialogContent className="bg-slate-900 border-slate-800 text-white">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-xl">
+              Cancel Booking?
+            </AlertDialogTitle>
+
+            <AlertDialogDescription className="text-slate-400">
+              Are you sure you want to cancel this studio booking? This action
+              cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              disabled={!!cancellingId}
+              className="bg-slate-800 border-slate-700 text-white hover:bg-slate-700 hover:text-white"
+            >
+              Keep Booking
+            </AlertDialogCancel>
+
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                void confirmCancel();
+              }}
+              disabled={!!cancellingId}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              {cancellingId ? "Cancelling..." : "Yes, Cancel Booking"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {/* Header */}
       <div className="border-b border-slate-800 pb-6">
         <h1 className="text-3xl font-extrabold text-white">My Bookings</h1>

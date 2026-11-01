@@ -19,6 +19,14 @@ export default function AddStudioPage() {
 
     try {
       const token = await getTokenFromClient();
+      if (!token) {
+        toast.add({
+          title: "Authentication Required",
+          description: "Please login to add a new studio.",
+          type: "error",
+        });
+        return;
+      }
       const result = await fetch(
         `${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/add-studios`,
         {

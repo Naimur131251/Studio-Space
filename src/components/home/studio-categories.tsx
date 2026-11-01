@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Suspense } from "react";
 import { MoveRight } from "lucide-react";
+import { connection } from "next/server";
 
 interface Category {
   name?: string;
@@ -41,6 +42,7 @@ async function getCategories(): Promise<Category[]> {
 }
 
 async function CategoryList() {
+  await connection();
   const allCategories = await getCategories();
 
   if (allCategories.length === 0) {
@@ -56,11 +58,9 @@ async function CategoryList() {
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
       {categories.map((cat, index) => {
-        // ডাটাবেজের সম্ভাব্য ফিল্ড নেম অনুযায়ী চেক করা হচ্ছে
         const categoryName =
           cat.name || cat.category || cat.title || `Category ${index + 1}`;
         const categorySlug = cat.slug || cat.category || "unknown";
-
         const categoryImage =
           cat.image || cat.imageUrl || "https://unsplash.com";
 

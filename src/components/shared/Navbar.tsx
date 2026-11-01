@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
+import { toast } from "../ui/toast";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -29,10 +30,27 @@ export default function Navbar() {
       await authClient.signOut();
 
       setUserDropdownOpen(false);
+
+      toast.add({
+        title: "Logged out successfully",
+        description:
+          "You have been securely signed out of your account. See you soon!",
+        type: "success",
+      });
+
       router.refresh();
       router.push("/");
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Logout failed:", error);
+
+      toast.add({
+        title: "Logout Failed",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Something went wrong. Please try again.",
+        type: "error",
+      });
     } finally {
       setLoggingOut(false);
     }

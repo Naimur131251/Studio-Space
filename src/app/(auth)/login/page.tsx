@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
+import { toast } from "@/components/ui/toast";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -13,7 +14,6 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   // Previous page URL
@@ -34,10 +34,13 @@ export default function LoginPage() {
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError("");
 
     if (!email.trim() || !password) {
-      setError("Please fill in all required fields.");
+      toast.add({
+        title: "Validation Error",
+        description: "Please fill in all required fields.",
+        type: "info",
+      });
       return;
     }
 
@@ -50,17 +53,32 @@ export default function LoginPage() {
       });
 
       if (error) {
-        setError(error.message || "Login failed. Please try again.");
+        toast.add({
+          title: "Login Failed",
+          description:
+            error.message || "Invalid email or password. Please try again.",
+          type: "error",
+        });
         return;
       }
 
       console.log("Login user:", data);
 
+      toast.add({
+        title: "Login successful!",
+        description: "Welcome back to StudioSpace.",
+        type: "success",
+      });
+
       router.replace(getRedirectUrl());
       router.refresh();
     } catch (err) {
       console.error("Login error:", err);
-      setError("Something went wrong. Please try again.");
+      toast.add({
+        title: "Authentication Error",
+        description: "Something went wrong. Please try again later.",
+        type: "error",
+      });
     } finally {
       setLoading(false);
     }
@@ -69,17 +87,27 @@ export default function LoginPage() {
   // Google Login
   const handleGoogleLogin = async () => {
     try {
-      setError("");
       setLoading(true);
 
       await authClient.signIn.social({
         provider: "google",
         callbackURL: getRedirectUrl(),
       });
+
+      toast.add({
+        title: "Redirecting...",
+        description: "Signing in securely with your Google account.",
+        type: "info",
+      });
     } catch (err) {
       console.error("Google login error:", err);
-      setError("Google login failed. Please try again.");
       setLoading(false);
+
+      toast.add({
+        title: "Google Login Failed",
+        description: "Could not connect to Google. Please try again.",
+        type: "error",
+      });
     }
   };
 
@@ -94,12 +122,6 @@ export default function LoginPage() {
             Log in to your StudioSpace account
           </p>
         </div>
-
-        {error && (
-          <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-sm p-3 rounded-xl text-center">
-            {error}
-          </div>
-        )}
 
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
