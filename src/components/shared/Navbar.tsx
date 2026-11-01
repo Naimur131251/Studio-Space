@@ -68,8 +68,8 @@ export default function Navbar() {
           {[
             { name: "Home", href: "/" },
             { name: "Explore Studios", href: "/studios" },
-            { name: "How It Works", href: "#how-it-works" },
-            { name: "About Us", href: "#about" },
+            { name: "How It Works", href: "/#how-it-works" },
+            { name: "About Us", href: "/#about" },
           ].map((item) => (
             <Link
               key={item.href}
