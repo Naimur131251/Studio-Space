@@ -66,7 +66,10 @@ export default function RegisterPage() {
     }
   };
 
-  const handleGoogleLogin = () => {
+  const handleGoogleLogin = async () => {
+    await authClient.signIn.social({
+      provider: "google",
+    });
     router.push("/");
   };
 

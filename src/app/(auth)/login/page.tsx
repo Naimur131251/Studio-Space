@@ -48,8 +48,10 @@ export default function LoginPage() {
     }
   };
 
-  const handleGoogleLogin = () => {
-    // Mock Google Login -> Navigate to Home
+  const handleGoogleLogin = async () => {
+    await authClient.signIn.social({
+      provider: "google",
+    });
     router.push("/");
   };
 
