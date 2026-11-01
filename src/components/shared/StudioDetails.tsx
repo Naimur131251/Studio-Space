@@ -157,19 +157,6 @@ export function StudioDetailsContant() {
     };
   }, [api]);
 
-  // Format time
-  const formatTime = (time: string) => {
-    const [hour, minute] = time.split(":").map(Number);
-
-    const period = hour >= 12 ? "PM" : "AM";
-    const formattedHour = hour % 12 || 12;
-
-    return `${String(formattedHour).padStart(2, "0")}:${String(minute).padStart(
-      2,
-      "0",
-    )} ${period}`;
-  };
-
   // Booking Submit
   const handleBookingSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -184,7 +171,6 @@ export function StudioDetailsContant() {
     try {
       setBookingLoading(true);
 
-      // Calculate booking time
       const [hour, minute] = startTime.split(":").map(Number);
 
       const endMinutes = hour * 60 + minute + hours * 60;
@@ -193,23 +179,43 @@ export function StudioDetailsContant() {
         throw new Error("Booking cannot extend beyond midnight.");
       }
 
-      const endTime = `${String(Math.floor(endMinutes / 60) % 24).padStart(
-        2,
-        "0",
-      )}:${String(endMinutes % 60).padStart(2, "0")}`;
+      const endHour = Math.floor(endMinutes / 60);
+      const endMinute = endMinutes % 60;
+
+      const formatTime = (time: string) => {
+        const [h, m] = time.split(":").map(Number);
+        const period = h >= 12 ? "PM" : "AM";
+        const formattedHour = h % 12 || 12;
+
+        return `${String(formattedHour).padStart(2, "0")}:${String(m).padStart(
+          2,
+          "0",
+        )} ${period}`;
+      };
+
+      const endTime = `${String(endHour).padStart(2, "0")}:${String(
+        endMinute,
+      ).padStart(2, "0")}`;
 
       const timeSlot = `${formatTime(startTime)} - ${formatTime(endTime)}`;
 
-      const totalAmount = studio.hourlyRate * hours;
-
-      // Get JWT token
       const token = await getTokenFromClient();
 
       if (!token) {
         throw new Error("Please login again to book a studio.");
       }
 
-      // Send booking request
+      const bookingPayload = {
+        studioId: studio._id,
+        studioTitle: studio.title,
+        category: studio.category,
+        bookingDate: bookingDate,
+        timeSlot,
+        totalAmount: studio.hourlyRate * hours,
+      };
+
+      console.log("Booking Payload:", bookingPayload);
+
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/bookings`,
         {
@@ -218,22 +224,18 @@ export function StudioDetailsContant() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({
-            studioId: studio._id,
-            date: bookingDate,
-            timeSlot,
-            totalAmount,
-          }),
+          body: JSON.stringify(bookingPayload),
         },
       );
 
       const data = await response.json();
 
+      console.log("Booking API Response:", data);
+
       if (!response.ok) {
-        throw new Error(data.message || "Booking failed");
+        throw new Error(data.message || "Booking failed.");
       }
 
-      // Success
       alert("Reservation submitted successfully!");
 
       setIsModalOpen(false);

@@ -3,15 +3,17 @@
 import { getTokenFromClient } from "@/lib/getTokenFromClient";
 import { useCallback, useEffect, useState } from "react";
 
+type BookingStatus = "pending" | "confirmed" | "completed" | "cancelled";
+
 interface Booking {
   _id: string;
   studioId?: string;
   studioTitle: string;
   category: string;
-  bookingDate: string;
+  date: string;
   timeSlot: string;
   totalAmount: number;
-  status: "Pending" | "Confirmed" | "Completed" | "Cancelled";
+  status: BookingStatus;
 }
 
 const API_URL = process.env.NEXT_PUBLIC_SERVER_BASE_URL;
@@ -24,6 +26,8 @@ export default function MyBookingsPage() {
 
   // Fetch logged-in user's bookings
   const fetchMyBookings = useCallback(async () => {
+    await Promise.resolve();
+
     try {
       setLoading(true);
       setError("");
@@ -33,6 +37,10 @@ export default function MyBookingsPage() {
       }
 
       const token = await getTokenFromClient();
+
+      if (!token) {
+        throw new Error("Please login to view your bookings.");
+      }
 
       const response = await fetch(`${API_URL}/my-bookings`, {
         method: "GET",
@@ -48,11 +56,29 @@ export default function MyBookingsPage() {
         throw new Error(data.message || "Failed to fetch bookings.");
       }
 
-      if (!Array.isArray(data)) {
+      // Support both array and object API responses
+      const bookingList = Array.isArray(data)
+        ? data
+        : (data.bookings ?? data.data?.bookings);
+
+      if (!Array.isArray(bookingList)) {
+        console.error("Unexpected booking response:", data);
         throw new Error("Invalid booking data received from server.");
       }
 
-      setBookings(data);
+      // Normalize backend data
+      const formattedBookings: Booking[] = bookingList.map((item) => ({
+        _id: item._id,
+        studioId: item.studioId,
+        studioTitle: item.studioTitle,
+        category: item.category,
+        date: item.date || item.bookingDate || "",
+        timeSlot: item.timeSlot,
+        totalAmount: Number(item.totalAmount) || 0,
+        status: String(item.status || "pending").toLowerCase() as BookingStatus,
+      }));
+
+      setBookings(formattedBookings);
     } catch (error) {
       console.error("Fetch bookings error:", error);
 
@@ -67,10 +93,14 @@ export default function MyBookingsPage() {
   }, []);
 
   useEffect(() => {
-    void Promise.resolve().then(fetchMyBookings);
+    const timeoutId = window.setTimeout(() => {
+      void fetchMyBookings();
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
   }, [fetchMyBookings]);
 
-  // Cancel pending booking
+  // Cancel booking
   const handleCancel = async (id: string) => {
     const confirmed = window.confirm(
       "Are you sure you want to cancel this booking?",
@@ -79,9 +109,17 @@ export default function MyBookingsPage() {
     if (!confirmed) return;
 
     try {
+      if (!API_URL) {
+        throw new Error("API URL is not configured.");
+      }
+
       setCancellingId(id);
 
       const token = await getTokenFromClient();
+
+      if (!token) {
+        throw new Error("Please login again.");
+      }
 
       const response = await fetch(`${API_URL}/bookings/${id}/cancel`, {
         method: "PATCH",
@@ -98,7 +136,7 @@ export default function MyBookingsPage() {
 
       setBookings((prev) =>
         prev.map((booking) =>
-          booking._id === id ? { ...booking, status: "Cancelled" } : booking,
+          booking._id === id ? { ...booking, status: "cancelled" } : booking,
         ),
       );
 
@@ -115,19 +153,28 @@ export default function MyBookingsPage() {
   };
 
   // Status badge
-  const getStatusBadge = (status: Booking["status"]) => {
-    const styles: Record<Booking["status"], string> = {
-      Pending: "bg-amber-500/10 text-amber-400 border-amber-500/30",
-      Confirmed: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30",
-      Completed: "bg-blue-500/10 text-blue-400 border-blue-500/30",
-      Cancelled: "bg-red-500/10 text-red-400 border-red-500/30",
+  const getStatusBadge = (status: BookingStatus) => {
+    const styles: Record<BookingStatus, string> = {
+      pending: "bg-amber-500/10 text-amber-400 border-amber-500/30",
+      confirmed: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30",
+      completed: "bg-blue-500/10 text-blue-400 border-blue-500/30",
+      cancelled: "bg-red-500/10 text-red-400 border-red-500/30",
+    };
+
+    const labels: Record<BookingStatus, string> = {
+      pending: "Pending",
+      confirmed: "Confirmed",
+      completed: "Completed",
+      cancelled: "Cancelled",
     };
 
     return (
       <span
-        className={`px-3 py-1 border rounded-full text-xs font-semibold ${styles[status]}`}
+        className={`px-3 py-1 border rounded-full text-xs font-semibold ${
+          styles[status] || styles.pending
+        }`}
       >
-        {status}
+        {labels[status] || "Pending"}
       </span>
     );
   };
@@ -190,7 +237,7 @@ export default function MyBookingsPage() {
                   <td className="px-6 py-4">{booking.category}</td>
 
                   <td className="px-6 py-4">
-                    <div>{booking.bookingDate}</div>
+                    <div>{booking.date}</div>
 
                     <div className="text-xs text-slate-500">
                       {booking.timeSlot}
@@ -206,7 +253,8 @@ export default function MyBookingsPage() {
                   </td>
 
                   <td className="px-6 py-4 text-right">
-                    {booking.status === "Pending" && (
+                    {(booking.status === "pending" ||
+                      booking.status === "confirmed") && (
                       <button
                         disabled={cancellingId === booking._id}
                         onClick={() => handleCancel(booking._id)}
