@@ -7,7 +7,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "../ui/toast";
 import { useTheme } from "next-themes";
-import { Moon, Sun } from "lucide-react";
+import { Menu, Moon, Sun, X } from "lucide-react";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -24,6 +24,8 @@ export default function Navbar() {
   const isActive = (path: string) => pathname === path;
 
   const { theme, setTheme } = useTheme();
+
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Prevent hydration mismatch
   const mounted = useSyncExternalStore(
@@ -74,11 +76,15 @@ export default function Navbar() {
         dark:bg-slate-900/90 dark:border-slate-800 dark:text-white
       "
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Brand Logo */}
         <Link
           href="/"
-          className="flex items-center gap-2 text-xl font-bold tracking-tight"
+          className="
+    flex items-center gap-2 text-xl font-bold tracking-tight
+    absolute left-1/2 -translate-x-1/2
+    md:static md:translate-x-0
+  "
         >
           <svg
             className="w-7 h-7 text-indigo-500"
@@ -108,6 +114,7 @@ export default function Navbar() {
             <Link
               key={item.href}
               href={item.href}
+              onClick={() => setMobileMenuOpen(false)}
               className={`transition-colors ${
                 isActive(item.href)
                   ? "text-indigo-600 dark:text-indigo-400 font-semibold"
@@ -119,155 +126,209 @@ export default function Navbar() {
           ))}
         </nav>
 
-        <div className="flex gap-5">
-        {/* Theme Toggle */}
+        {/* Mobile Menu Toggle */}
         <button
           type="button"
-          onClick={() => {
-            setTheme(isDark ? "light" : "dark");
-          }}
-          aria-label={
-            !mounted
-              ? "Toggle theme"
-              : isDark
-                ? "Switch to light mode"
-                : "Switch to dark mode"
-          }
-          title={
-            !mounted
-              ? "Toggle theme"
-              : isDark
-                ? "Light mode"
-                : "Dark mode"
-          }
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-label="Toggle navigation menu"
+          aria-expanded={mobileMenuOpen}
           className="
+    md:hidden inline-flex h-10 w-10 items-center justify-center
+    rounded-lg border border-slate-300
+    text-slate-700 hover:bg-slate-100
+    dark:border-slate-700 dark:text-white
+    dark:hover:bg-slate-800
+  "
+        >
+          {mobileMenuOpen ? (
+            <X className="h-5 w-5" />
+          ) : (
+            <Menu className="h-5 w-5" />
+          )}
+        </button>
+
+        <div className="flex gap-5">
+          {/* Theme Toggle */}
+          <button
+            type="button"
+            onClick={() => {
+              setTheme(isDark ? "light" : "dark");
+            }}
+            aria-label={
+              !mounted
+                ? "Toggle theme"
+                : isDark
+                  ? "Switch to light mode"
+                  : "Switch to dark mode"
+            }
+            title={
+              !mounted ? "Toggle theme" : isDark ? "Light mode" : "Dark mode"
+            }
+            className="
             inline-flex h-10 w-10 shrink-0 items-center justify-center
             rounded-full border transition-colors duration-300
             border-slate-300 bg-white text-slate-700 hover:bg-slate-100
             dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200
             dark:hover:bg-slate-800
           "
-        >
-          {!mounted ? (
-            <span className="h-5 w-5" />
-          ) : isDark ? (
-            <Sun className="h-5 w-5" />
-          ) : (
-            <Moon className="h-5 w-5" />
-          )}
-        </button>
+          >
+            {!mounted ? (
+              <span className="h-5 w-5" />
+            ) : isDark ? (
+              <Sun className="h-5 w-5" />
+            ) : (
+              <Moon className="h-5 w-5" />
+            )}
+          </button>
 
-        {/* Authentication */}
-        <div className="flex items-center gap-4">
-          {isPending ? (
-            <div className="w-24 h-9 bg-slate-200 dark:bg-slate-800 rounded-lg animate-pulse" />
-          ) : !isAuthenticated ? (
-            <div className="flex items-center gap-3">
-              <Link
-                href="/login"
-                className="
+          {/* Authentication */}
+          <div className="flex items-center gap-4">
+            {isPending ? (
+              <div className="w-24 h-9 bg-slate-200 dark:bg-slate-800 rounded-lg animate-pulse" />
+            ) : !isAuthenticated ? (
+              <div className="flex items-center gap-3">
+                <Link
+                  href="/login"
+                  className="
                   px-4 py-2 text-sm font-medium transition-colors
                   text-slate-700 hover:text-indigo-600
                   dark:text-slate-300 dark:hover:text-white
                 "
-              >
-                Login
-              </Link>
+                >
+                  Login
+                </Link>
 
-              <Link
-                href="/register"
-                className="px-4 py-2 text-sm font-medium bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition-all shadow-md shadow-indigo-600/20"
-              >
-                Register
-              </Link>
-            </div>
-          ) : (
-            <div className="relative">
-              {/* User Avatar */}
-              <button
-                type="button"
-                onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                aria-label="Open user menu"
-                className="flex items-center gap-3 focus:outline-none"
-              >
-                {user.image ? (
-                  <Image
-                    src={user.image}
-                    alt={user.name || "User"}
-                    width={36}
-                    height={36}
-                    className="w-9 h-9 rounded-full object-cover ring-2 ring-indigo-500"
-                  />
-                ) : (
-                  <div className="w-9 h-9 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold ring-2 ring-indigo-500">
-                    {user.name?.charAt(0).toUpperCase() || "U"}
-                  </div>
-                )}
-              </button>
+                <Link
+                  href="/register"
+                  className="px-4 py-2 text-sm font-medium bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition-all shadow-md shadow-indigo-600/20"
+                >
+                  Register
+                </Link>
+              </div>
+            ) : (
+              <div className="relative">
+                {/* User Avatar */}
+                <button
+                  type="button"
+                  onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                  aria-label="Open user menu"
+                  className="flex items-center gap-3 focus:outline-none"
+                >
+                  {user.image ? (
+                    <Image
+                      src={user.image}
+                      alt={user.name || "User"}
+                      width={36}
+                      height={36}
+                      className="w-9 h-9 rounded-full object-cover ring-2 ring-indigo-500"
+                    />
+                  ) : (
+                    <div className="w-9 h-9 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold ring-2 ring-indigo-500">
+                      {user.name?.charAt(0).toUpperCase() || "U"}
+                    </div>
+                  )}
+                </button>
 
-              {/* Dropdown Menu */}
-              {userDropdownOpen && (
-                <div
-                  className="
+                {/* Dropdown Menu */}
+                {userDropdownOpen && (
+                  <div
+                    className="
                     absolute right-0 mt-2 w-56 rounded-xl border shadow-2xl
                     py-2 text-sm z-50
                     bg-white border-slate-200 text-slate-700
                     dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200
                   "
-                >
-                  <div className="px-4 py-2 border-b border-slate-200 dark:border-slate-700">
-                    <p className="font-semibold text-slate-900 dark:text-white">
-                      {user.name}
-                    </p>
-
-                    <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
-                      {user.email}
-                    </p>
-                  </div>
-
-                  <Link
-                    href="/add-studio"
-                    className="block px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-                    onClick={() => setUserDropdownOpen(false)}
                   >
-                    Add New Studio
-                  </Link>
+                    <div className="px-4 py-2 border-b border-slate-200 dark:border-slate-700">
+                      <p className="font-semibold text-slate-900 dark:text-white">
+                        {user.name}
+                      </p>
 
-                  <Link
-                    href="/my-listings"
-                    className="block px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-                    onClick={() => setUserDropdownOpen(false)}
-                  >
-                    My Studio Listings
-                  </Link>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                        {user.email}
+                      </p>
+                    </div>
 
-                  <Link
-                    href="/my-bookings"
-                    className="block px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-                    onClick={() => setUserDropdownOpen(false)}
-                  >
-                    My Bookings
-                  </Link>
+                    <Link
+                      href="/add-studio"
+                      className="block px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                      onClick={() => setUserDropdownOpen(false)}
+                    >
+                      Add New Studio
+                    </Link>
 
-                  <button
-                    type="button"
-                    onClick={handleLogout}
-                    disabled={loggingOut}
-                    className="
+                    <Link
+                      href="/my-listings"
+                      className="block px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                      onClick={() => setUserDropdownOpen(false)}
+                    >
+                      My Studio Listings
+                    </Link>
+
+                    <Link
+                      href="/my-bookings"
+                      className="block px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                      onClick={() => setUserDropdownOpen(false)}
+                    >
+                      My Bookings
+                    </Link>
+
+                    <button
+                      type="button"
+                      onClick={handleLogout}
+                      disabled={loggingOut}
+                      className="
                       w-full text-left px-4 py-2 text-red-600
                       hover:bg-red-50 dark:text-red-400 dark:hover:bg-slate-700
                       transition-colors border-t border-slate-200
                       dark:border-slate-700 mt-1 disabled:opacity-50
                     "
-                  >
-                    {loggingOut ? "Logging out..." : "Logout"}
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
-        </div></div>
+                    >
+                      {loggingOut ? "Logging out..." : "Logout"}
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
+
+      {/* Mobile Navigation */}
+      {mobileMenuOpen && (
+        <div
+          className="
+      md:hidden border-t border-slate-200
+      bg-white dark:bg-slate-900
+      dark:border-slate-800
+    "
+        >
+          <nav className="max-w-7xl mx-auto px-4 py-4 flex flex-col gap-1">
+            {[
+              { name: "Home", href: "/" },
+              { name: "Explore Studios", href: "/studios" },
+              { name: "How It Works", href: "/#how-it-works" },
+              { name: "About Us", href: "/#about" },
+            ].map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => setMobileMenuOpen(false)}
+                className="
+  md:hidden inline-flex h-10 shrink-0
+  items-center justify-center rounded-lg
+  border border-slate-300
+  text-slate-700 hover:bg-slate-100
+  dark:border-slate-700 dark:text-white
+  dark:hover:bg-slate-800
+"
+              >
+                {item.name}
+              </Link>
+            ))}
+          </nav>
+        </div>
+      )}
     </header>
   );
 }
