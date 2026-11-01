@@ -119,6 +119,7 @@ export default function Navbar() {
           ))}
         </nav>
 
+        <div className="flex gap-5">
         {/* Theme Toggle */}
         <button
           type="button"
@@ -265,7 +266,7 @@ export default function Navbar() {
               )}
             </div>
           )}
-        </div>
+        </div></div>
       </div>
     </header>
   );
