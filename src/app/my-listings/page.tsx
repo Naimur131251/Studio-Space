@@ -170,87 +170,123 @@ export default function MyListingsPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8">
-      <div className="flex justify-between items-center border-b border-slate-800 pb-6">
+    <div className="mx-auto max-w-7xl space-y-8 px-4 py-12 text-slate-900 dark:text-white sm:px-6 lg:px-8">
+      {/* Header */}
+      <div className="flex flex-col justify-between gap-4 border-b border-slate-200 pb-6 dark:border-slate-800 sm:flex-row sm:items-center">
         <div>
-          <h1 className="text-3xl font-extrabold text-white">
+          <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white">
             My Studio Listings
           </h1>
-          <p className="text-slate-400 text-sm mt-1">
+
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
             Manage, edit, or delete your posted studio workspaces
           </p>
         </div>
+
         <Link
           href="/add-studio"
-          className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-sm font-medium shadow-md shadow-indigo-600/20"
+          className="inline-flex items-center justify-center rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white shadow-md shadow-indigo-600/20 transition-colors hover:bg-indigo-700 dark:hover:bg-indigo-500"
         >
           + Add New Studio
         </Link>
       </div>
 
+      {/* Loading */}
       {loading ? (
-        <div className="text-center py-20 bg-slate-900 border border-slate-800 rounded-2xl">
-          <p className="text-indigo-400 font-medium animate-pulse">
+        <div className="rounded-2xl border border-slate-200 bg-white py-20 text-center dark:border-slate-800 dark:bg-slate-900">
+          <p className="animate-pulse font-medium text-indigo-600 dark:text-indigo-400">
             Loading listings...
           </p>
         </div>
       ) : listings.length === 0 ? (
-        <div className="text-center py-20 bg-slate-900 border border-slate-800 rounded-2xl">
-          <p className="text-slate-400">
+        /* Empty State */
+        <div className="rounded-2xl border border-slate-200 bg-white py-20 text-center dark:border-slate-800 dark:bg-slate-900">
+          <p className="text-slate-600 dark:text-slate-400">
             You haven&apos;t listed any studio workspaces yet.
           </p>
+
+          <Link
+            href="/add-studio"
+            className="mt-4 inline-flex rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700"
+          >
+            Add Your First Studio
+          </Link>
         </div>
       ) : (
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
-          <table className="w-full text-left text-sm text-slate-300">
-            <thead className="bg-slate-950 text-slate-400 uppercase text-xs border-b border-slate-800">
+        /* Listings Table */
+        <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-xl dark:border-slate-800 dark:bg-slate-900">
+          <table className="w-full text-left text-sm">
+            <thead className="border-b border-slate-200 bg-slate-100 text-xs uppercase text-slate-600 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400">
               <tr>
-                <th className="px-6 py-4">Studio Workspace</th>
+                <th className="whitespace-nowrap px-6 py-4">
+                  Studio Workspace
+                </th>
                 <th className="px-6 py-4">Category</th>
-                <th className="px-6 py-4">Rate</th>
+                <th className="whitespace-nowrap px-6 py-4">Rate</th>
                 <th className="px-6 py-4">Location</th>
                 <th className="px-6 py-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800">
+
+            <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
               {listings.map((studio) => (
                 <tr
                   key={studio._id}
-                  className="hover:bg-slate-800/50 transition-colors"
+                  className="transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50"
                 >
-                  <td className="px-6 py-4 flex items-center gap-3">
-                    <Image
-                      src={
-                        studio.imageUrl ||
-                        "https://images.unsplash.com/photo-1655831068474-00da7930d340?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D"
-                      }
-                      alt={studio.title}
-                      className="w-12 h-12 rounded-lg object-cover"
-                      width={50}
-                      height={50}
-                    />
-                    <span className="font-semibold text-white">
-                      {studio.title}
-                    </span>
+                  {/* Studio */}
+                  <td className="px-6 py-4">
+                    <div className="flex min-w-55 items-center gap-3">
+                      <Image
+                        src={
+                          studio.imageUrl ||
+                          "https://images.unsplash.com/photo-1655831068474-00da7930d340?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D"
+                        }
+                        alt={studio.title}
+                        className="h-12 w-12 rounded-lg object-cover"
+                        width={50}
+                        height={50}
+                      />
+
+                      <span className="font-semibold text-slate-900 dark:text-white">
+                        {studio.title}
+                      </span>
+                    </div>
                   </td>
-                  <td className="px-6 py-4">{studio.category}</td>
-                  <td className="px-6 py-4 font-bold text-indigo-400">
+
+                  {/* Category */}
+                  <td className="whitespace-nowrap px-6 py-4 text-slate-600 dark:text-slate-300">
+                    {studio.category}
+                  </td>
+
+                  {/* Rate */}
+                  <td className="whitespace-nowrap px-6 py-4 font-bold text-indigo-600 dark:text-indigo-400">
                     ${studio.hourlyRate}/hr
                   </td>
-                  <td className="px-6 py-4">{studio.location}</td>
-                  <td className="px-6 py-4 text-right space-x-2">
-                    <Link
-                      href={`/studios/edit/${studio._id}`}
-                      className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium"
-                    >
-                      Update
-                    </Link>
-                    <button
-                      onClick={() => setDeleteId(studio._id)}
-                      className="px-3 py-1.5 bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white rounded-lg text-xs font-medium transition-colors"
-                    >
-                      Delete
-                    </button>
+
+                  {/* Location */}
+                  <td className="px-6 py-4 text-slate-600 dark:text-slate-300">
+                    {studio.location}
+                  </td>
+
+                  {/* Actions */}
+                  <td className="px-6 py-4 text-right">
+                    <div className="flex justify-end gap-2">
+                      <Link
+                        href={`/studios/edit/${studio._id}`}
+                        className="rounded-lg border border-slate-200 bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                      >
+                        Update
+                      </Link>
+
+                      <button
+                        type="button"
+                        onClick={() => setDeleteId(studio._id)}
+                        className="rounded-lg bg-red-50 px-3 py-1.5 text-xs font-medium text-red-600 transition-colors hover:bg-red-600 hover:text-white dark:bg-red-600/20 dark:text-red-400 dark:hover:bg-red-600 dark:hover:text-white cursor-pointer"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -261,25 +297,38 @@ export default function MyListingsPage() {
 
       {/* Delete Confirmation Modal */}
       {deleteId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm px-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-6 space-y-4 shadow-2xl text-center">
-            <h3 className="text-lg font-bold text-white">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 px-4 backdrop-blur-sm dark:bg-slate-950/80">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-studio-title"
+            className="w-full max-w-sm space-y-4 rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-2xl dark:border-slate-800 dark:bg-slate-900"
+          >
+            <h3
+              id="delete-studio-title"
+              className="text-lg font-bold text-slate-900 dark:text-white"
+            >
               Delete Studio Listing?
             </h3>
-            <p className="text-slate-400 text-sm">
+
+            <p className="text-sm text-slate-600 dark:text-slate-400">
               Are you sure you want to remove this listing? This action cannot
               be undone.
             </p>
+
             <div className="flex gap-3 pt-2">
               <button
+                type="button"
                 onClick={() => setDeleteId(null)}
-                className="w-1/2 py-2 bg-slate-800 text-slate-300 rounded-xl text-sm font-medium hover:bg-slate-700"
+                className="w-1/2 rounded-xl border border-slate-200 bg-slate-100 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 cursor-pointer"
               >
                 Cancel
               </button>
+
               <button
+                type="button"
                 onClick={handleDelete}
-                className="w-1/2 py-2 bg-red-600 hover:bg-red-500 text-white rounded-xl text-sm font-medium"
+                className="w-1/2 rounded-xl bg-red-600 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700 cursor-pointer"
               >
                 Confirm Delete
               </button>

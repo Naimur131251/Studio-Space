@@ -5,6 +5,7 @@ import Navbar from "@/components/shared/Navbar";
 import Footer from "@/components/shared/Footer";
 import { Suspense } from "react";
 import { Toaster } from "@/components/ui/toast";
+import ThemeProvider from "@/components/providers/theme-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,14 +28,22 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       data-scroll-behavior="smooth"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">
-        <Suspense fallback={<div className="h-16 bg-slate-900" />}>
-          <Navbar />
-        </Suspense>
-        {children}
-        <Footer />
-        <Toaster /> 
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem={false}
+          disableTransitionOnChange
+        >
+          <Suspense fallback={<div className="h-16 bg-slate-900" />}>
+            <Navbar />
+          </Suspense>
+          {children}
+          <Footer />
+          <Toaster />{" "}
+        </ThemeProvider>
       </body>
     </html>
   );

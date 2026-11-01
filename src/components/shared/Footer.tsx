@@ -4,13 +4,23 @@ import { FaXTwitter } from "react-icons/fa6";
 
 export default function Footer() {
   return (
-    <footer className="bg-slate-950 text-slate-400 border-t border-slate-800 pt-12 pb-8">
+    <footer
+      className="
+        border-t pt-12 pb-8 transition-colors duration-300
+        bg-slate-50 text-slate-600 border-slate-200
+        dark:bg-slate-950 dark:text-slate-400 dark:border-slate-800
+      "
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
         {/* Brand & Mission */}
         <div className="space-y-4">
           <Link
             href="/"
-            className="flex items-center gap-2 text-xl font-bold text-white"
+            className="
+              flex items-center gap-2 text-xl font-bold
+              text-slate-900 dark:text-white
+              transition-colors
+            "
           >
             <svg
               className="w-7 h-7 text-indigo-500"
@@ -25,6 +35,7 @@ export default function Footer() {
             </svg>
             <span>StudioSpace</span>
           </Link>
+
           <p className="text-sm leading-relaxed">
             A peer-to-peer production studio platform connecting creators with
             top-tier photo studios, sound stages, podcast rooms, and workshops.
@@ -33,19 +44,23 @@ export default function Footer() {
 
         {/* Quick Links */}
         <div>
-          <h3 className="text-white font-semibold text-sm mb-4 tracking-wider uppercase">
+          <h3 className="text-slate-900 dark:text-white font-semibold text-sm mb-4 tracking-wider uppercase">
             Quick Links
           </h3>
+
           <ul className="space-y-2 text-sm">
             <li>
-              <Link href="/" className="hover:text-white transition-colors">
+              <Link
+                href="/"
+                className="hover:text-indigo-600 dark:hover:text-white transition-colors"
+              >
                 Home
               </Link>
             </li>
             <li>
               <Link
                 href="/studios"
-                className="hover:text-white transition-colors"
+                className="hover:text-indigo-600 dark:hover:text-white transition-colors"
               >
                 Explore Studios
               </Link>
@@ -53,7 +68,7 @@ export default function Footer() {
             <li>
               <Link
                 href="/#how-it-works"
-                className="hover:text-white transition-colors"
+                className="hover:text-indigo-600 dark:hover:text-white transition-colors"
               >
                 How It Works
               </Link>
@@ -61,7 +76,7 @@ export default function Footer() {
             <li>
               <Link
                 href="/#about"
-                className="hover:text-white transition-colors"
+                className="hover:text-indigo-600 dark:hover:text-white transition-colors"
               >
                 About Us
               </Link>
@@ -71,14 +86,15 @@ export default function Footer() {
 
         {/* Categories */}
         <div>
-          <h3 className="text-white font-semibold text-sm mb-4 tracking-wider uppercase">
+          <h3 className="text-slate-900 dark:text-white font-semibold text-sm mb-4 tracking-wider uppercase">
             Categories
           </h3>
+
           <ul className="space-y-2 text-sm">
             <li>
               <Link
                 href="/studios?category=Photo+Studio"
-                className="hover:text-white transition-colors"
+                className="hover:text-indigo-600 dark:hover:text-white transition-colors"
               >
                 Photo Studios
               </Link>
@@ -86,7 +102,7 @@ export default function Footer() {
             <li>
               <Link
                 href="/studios?category=Film+Stage"
-                className="hover:text-white transition-colors"
+                className="hover:text-indigo-600 dark:hover:text-white transition-colors"
               >
                 Cinema Sound Stages
               </Link>
@@ -94,7 +110,7 @@ export default function Footer() {
             <li>
               <Link
                 href="/studios?category=Podcast+Lounge"
-                className="hover:text-white transition-colors"
+                className="hover:text-indigo-600 dark:hover:text-white transition-colors"
               >
                 Podcast Rooms
               </Link>
@@ -102,7 +118,7 @@ export default function Footer() {
             <li>
               <Link
                 href="/studios?category=Music+Suite"
-                className="hover:text-white transition-colors"
+                className="hover:text-indigo-600 dark:hover:text-white transition-colors"
               >
                 Music Suites
               </Link>
@@ -112,50 +128,69 @@ export default function Footer() {
 
         {/* Newsletter & Socials */}
         <div className="space-y-4">
-          <h3 className="text-white font-semibold text-sm tracking-wider uppercase">
+          <h3 className="text-slate-900 dark:text-white font-semibold text-sm tracking-wider uppercase">
             Newsletter
           </h3>
+
           <div className="flex gap-2">
             <input
               type="email"
               placeholder="Enter your email"
-              className="bg-slate-900 border border-slate-800 text-slate-200 text-sm rounded-lg px-3 py-2 w-full focus:outline-none focus:border-indigo-500"
+              className="
+                w-full min-w-0 rounded-lg border px-3 py-2 text-sm
+                outline-none transition-colors
+                bg-white border-slate-300 text-slate-900
+                placeholder:text-slate-400 focus:border-indigo-500
+                dark:bg-slate-900 dark:border-slate-800 dark:text-slate-200
+                dark:placeholder:text-slate-500
+              "
             />
-            <button className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+
+            <button
+              type="button"
+              className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+            >
               Join
             </button>
           </div>
 
-          {/* Social Links featuring the new X logo */}
+          {/* Social Links: X, Facebook, Instagram, YouTube */}
           <div className="flex items-center gap-4 pt-2">
             <Link
               href="https://x.com"
               target="_blank"
               rel="noreferrer"
-              className="hover:text-white transition-colors"
+              aria-label="X"
+              className="hover:text-slate-950 dark:hover:text-white transition-colors"
             >
               <FaXTwitter />
             </Link>
+
             <Link
               href="https://facebook.com"
               target="_blank"
               rel="noreferrer"
+              aria-label="Facebook"
               className="hover:text-blue-500 transition-colors"
             >
               <FaFacebookF />
             </Link>
+
             <Link
               href="https://instagram.com"
               target="_blank"
               rel="noreferrer"
-              className="hover:text-lime-500 transition-colors"
+              aria-label="Instagram"
+              className="hover:text-pink-500 transition-colors"
             >
               <FaInstagram />
             </Link>
+
             <Link
               href="https://youtube.com"
               target="_blank"
               rel="noreferrer"
+              aria-label="YouTube"
               className="hover:text-red-500 transition-colors"
             >
               <FaYoutube />
@@ -164,15 +199,30 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-slate-800/80 pt-6 flex flex-col md:flex-row items-center justify-between text-xs text-slate-500 gap-4">
-        <p>
-          &copy; 2026 StudioSpace. All rights reserved.
-        </p>
+      {/* Copyright & Legal Links */}
+      <div
+        className="
+          max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t
+          pt-6 flex flex-col md:flex-row items-center justify-between
+          text-xs gap-4
+          border-slate-200 text-slate-500
+          dark:border-slate-800/80 dark:text-slate-500
+        "
+      >
+        <p>&copy; 2026 StudioSpace. All rights reserved.</p>
+
         <div className="flex gap-4">
-          <Link href="#" className="hover:text-slate-400">
+          <Link
+            href="#"
+            className="hover:text-slate-900 dark:hover:text-slate-300 transition-colors"
+          >
             Privacy Policy
           </Link>
-          <Link href="#" className="hover:text-slate-400">
+
+          <Link
+            href="#"
+            className="hover:text-slate-900 dark:hover:text-slate-300 transition-colors"
+          >
             Terms of Service
           </Link>
         </div>

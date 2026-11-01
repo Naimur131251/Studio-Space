@@ -388,18 +388,18 @@ export function StudioDetailsContant() {
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-12 space-y-8 animate-pulse">
-        <div className="h-9 w-56 bg-slate-800 rounded" />
+        <div className="h-9 w-56 bg-slate-200 dark:bg-slate-800 rounded" />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
-            <div className="h-95 md:h-112.5 bg-slate-900 rounded-2xl" />
-            <div className="h-24 bg-slate-900 rounded-2xl" />
-            <div className="h-32 bg-slate-900 rounded-2xl" />
+            <div className="h-95 md:h-112.5 bg-slate-200 dark:bg-slate-900 rounded-2xl" />
+            <div className="h-24 bg-slate-200 dark:bg-slate-900 rounded-2xl" />
+            <div className="h-32 bg-slate-200 dark:bg-slate-900 rounded-2xl" />
           </div>
 
           <div className="space-y-6">
-            <div className="h-40 bg-slate-900 rounded-2xl" />
-            <div className="h-64 bg-slate-900 rounded-2xl" />
+            <div className="h-40 bg-slate-200 dark:bg-slate-900 rounded-2xl" />
+            <div className="h-64 bg-slate-200 dark:bg-slate-900 rounded-2xl" />
           </div>
         </div>
       </div>
@@ -410,26 +410,26 @@ export function StudioDetailsContant() {
   if (error || !studio) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-20">
-        <div className="text-center py-20 bg-slate-900/40 border border-slate-800 rounded-2xl">
-          <h2 className="text-xl font-bold text-white">
+        <div className="text-center py-20 bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-2xl">
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white">
             {error || "Studio not found"}
           </h2>
 
-          <p className="text-slate-400 text-sm mt-2">
+          <p className="text-slate-600 dark:text-slate-400 text-sm mt-2">
             We could not load this studio.
           </p>
 
           <div className="flex justify-center gap-3 mt-6">
             <button
               onClick={() => setRetry((prev) => prev + 1)}
-              className="px-5 py-2.5 bg-indigo-600 text-white text-sm rounded-xl"
+              className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-sm rounded-xl"
             >
               Try Again
             </button>
 
             <button
               onClick={() => router.push("/studios")}
-              className="px-5 py-2.5 bg-slate-800 text-white text-sm rounded-xl"
+              className="px-5 py-2.5 bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-white text-sm rounded-xl"
             >
               Explore Studios
             </button>
@@ -440,29 +440,29 @@ export function StudioDetailsContant() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-10">
+    <div className="mx-auto max-w-7xl space-y-10 px-4 py-12 text-slate-900 transition-colors sm:px-6 lg:px-8 dark:text-white">
       {/* Header */}
       <div>
-        <h1 className="text-2xl md:text-3xl font-extrabold text-white">
+        <h1 className="text-2xl font-extrabold text-slate-900 md:text-3xl dark:text-white">
           Studio Details
         </h1>
       </div>
 
       {/* Main Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         {/* Left Section */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="space-y-6 lg:col-span-2">
           {/* Gallery */}
           <div className="space-y-4">
             <Carousel setApi={setApi} className="w-full">
               <CarouselContent>
                 {galleryImages.map((img, index) => (
                   <CarouselItem key={index}>
-                    <div className="rounded-2xl overflow-hidden border border-slate-800 h-95 md:h-112.5 relative">
+                    <div className="relative h-95 overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 md:h-112.5 dark:border-slate-800 dark:bg-slate-900">
                       <Image
                         src={img}
                         alt={`${studio.title} ${index + 1}`}
-                        className="object-cover w-full h-full"
+                        className="h-full w-full object-cover"
                         width={1000}
                         height={700}
                         priority={index === 0}
@@ -474,8 +474,9 @@ export function StudioDetailsContant() {
 
               {galleryImages.length > 1 && (
                 <>
-                  <CarouselPrevious className="left-4 bg-slate-900/80 border-slate-700 text-white" />
-                  <CarouselNext className="right-4 bg-slate-900/80 border-slate-700 text-white" />
+                  <CarouselPrevious className="left-4 border-slate-200 bg-white/90 text-slate-900 hover:bg-white dark:border-slate-700 dark:bg-slate-900/80 dark:text-white dark:hover:bg-slate-800" />
+
+                  <CarouselNext className="right-4 border-slate-200 bg-white/90 text-slate-900 hover:bg-white dark:border-slate-700 dark:bg-slate-900/80 dark:text-white dark:hover:bg-slate-800" />
                 </>
               )}
             </Carousel>
@@ -486,17 +487,20 @@ export function StudioDetailsContant() {
                 {galleryImages.map((img, index) => (
                   <button
                     key={index}
+                    type="button"
                     onClick={() => api?.scrollTo(index)}
-                    className={`relative w-20 h-16 rounded-xl overflow-hidden border-2 shrink-0 ${
+                    aria-label={`Show studio image ${index + 1}`}
+                    aria-pressed={currentIndex === index}
+                    className={`relative h-16 w-20 shrink-0 overflow-hidden rounded-xl border-2 transition-all mt-1 ml-1 ${
                       currentIndex === index
-                        ? "border-indigo-500 scale-105"
-                        : "border-slate-800 opacity-70"
+                        ? "scale-105 border-indigo-500 opacity-100"
+                        : "border-slate-300 opacity-70 hover:opacity-100 dark:border-slate-700"
                     }`}
                   >
                     <Image
                       src={img}
                       alt={`Thumbnail ${index + 1}`}
-                      className="object-cover w-full h-full"
+                      className="h-full w-full object-cover"
                       width={500}
                       height={300}
                     />
@@ -508,35 +512,41 @@ export function StudioDetailsContant() {
 
           {/* Description */}
           <div className="space-y-3 pt-4">
-            <h3 className="text-xl font-bold uppercase text-slate-400">
+            <h3 className="text-xl font-bold uppercase text-slate-600 dark:text-slate-400">
               Description
             </h3>
 
-            <h2 className="text-lg font-bold text-white uppercase">
+            <h2 className="text-lg font-bold uppercase text-slate-900 dark:text-white">
               {studio.title}
             </h2>
 
-            <p className="text-slate-300 text-sm md:text-base leading-relaxed">
+            <p className="text-sm leading-relaxed text-slate-700 md:text-base dark:text-slate-300">
               {studio.overview}
             </p>
           </div>
 
           {/* Amenities */}
           <div className="space-y-4 pt-4">
-            <h3 className="text-xl font-bold text-white">Amenities</h3>
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white">
+              Amenities
+            </h3>
 
             <div className="space-y-3">
               {studio.amenities?.map((item, idx) => (
                 <div
                   key={idx}
-                  className="flex items-center justify-between bg-slate-900 border border-slate-800 px-4 py-3 rounded-xl text-sm text-slate-200"
+                  className="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200"
                 >
                   <span className="flex items-center gap-2">
-                    <span className="text-indigo-400">{item.icon}</span>
+                    <span className="text-indigo-600 dark:text-indigo-400">
+                      {item.icon}
+                    </span>
                     {item.name}
                   </span>
 
-                  <span className="text-slate-400 text-xs">Included</span>
+                  <span className="text-xs text-slate-500 dark:text-slate-400">
+                    Included
+                  </span>
                 </div>
               ))}
             </div>
@@ -546,34 +556,36 @@ export function StudioDetailsContant() {
         {/* Right Sidebar */}
         <div className="space-y-6">
           {/* Workspace Info */}
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
-            <h4 className="text-base font-bold text-white">Full Workspace</h4>
+          <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+            <h4 className="text-base font-bold text-slate-900 dark:text-white">
+              Full Workspace
+            </h4>
 
-            <div className="space-y-2 text-sm text-slate-300">
-              <div className="flex justify-between">
+            <div className="space-y-3 text-sm text-slate-600 dark:text-slate-300">
+              <div className="flex justify-between gap-3">
                 <span>Category:</span>
-                <span className="font-semibold text-white">
+                <span className="text-right font-semibold text-slate-900 dark:text-white">
                   {studio.category}
                 </span>
               </div>
 
-              <div className="flex justify-between">
+              <div className="flex justify-between gap-3">
                 <span>Production:</span>
-                <span className="font-semibold text-white">
+                <span className="text-right font-semibold text-slate-900 dark:text-white">
                   ${studio.hourlyRate}/hr
                 </span>
               </div>
 
-              <div className="flex justify-between">
+              <div className="flex justify-between gap-3">
                 <span>Security Deposit:</span>
-                <span className="font-semibold text-white">
+                <span className="text-right font-semibold text-slate-900 dark:text-white">
                   ${studio.securityDeposit}
                 </span>
               </div>
 
-              <div className="flex justify-between">
+              <div className="flex justify-between gap-3">
                 <span>Max Capacity:</span>
-                <span className="font-semibold text-white">
+                <span className="text-right font-semibold text-slate-900 dark:text-white">
                   {studio.maxCapacity} People
                 </span>
               </div>
@@ -581,16 +593,18 @@ export function StudioDetailsContant() {
           </div>
 
           {/* Amenities Summary */}
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
-            <h4 className="text-base font-bold text-white">Amenities</h4>
+          <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+            <h4 className="text-base font-bold text-slate-900 dark:text-white">
+              Amenities
+            </h4>
 
             <div className="grid grid-cols-1 gap-2">
               {studio.amenities?.map((amenity, idx) => (
                 <div
                   key={idx}
-                  className="flex items-center gap-3 text-sm text-slate-200 py-1"
+                  className="flex items-center gap-3 py-1 text-sm text-slate-700 dark:text-slate-200"
                 >
-                  <span className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-indigo-400">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-indigo-600 dark:bg-slate-800 dark:text-indigo-400">
                     {amenity.icon}
                   </span>
 
@@ -601,36 +615,36 @@ export function StudioDetailsContant() {
           </div>
 
           {/* Host */}
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
-            <div className="flex justify-between items-center">
-              <h4 className="text-sm font-semibold text-white uppercase tracking-wider">
+          <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+            <div className="flex items-center justify-between gap-2">
+              <h4 className="text-sm font-semibold uppercase tracking-wider text-slate-900 dark:text-white">
                 Host Details
               </h4>
 
-              <span className="text-[10px] bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 px-2 py-0.5 rounded-full">
+              <span className="rounded-full border border-indigo-500/30 bg-indigo-50 px-2 py-0.5 text-[10px] text-indigo-700 dark:bg-indigo-600/20 dark:text-indigo-400">
                 Premier Studio
               </span>
             </div>
 
             <div className="flex items-center gap-4">
               {studio.host?.avatar && (
-                <div className="relative w-12 h-12 rounded-full overflow-hidden shrink-0">
+                <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full border border-slate-200 dark:border-slate-700">
                   <Image
                     src={studio.host.avatar}
                     alt={studio.host.name || "Studio Host"}
-                    className="object-cover w-full h-full"
+                    className="h-full w-full object-cover"
                     width={100}
                     height={100}
                   />
                 </div>
               )}
 
-              <div>
-                <h5 className="font-semibold text-white text-sm">
+              <div className="min-w-0">
+                <h5 className="truncate text-sm font-semibold text-slate-900 dark:text-white">
                   {studio.host?.name || "Studio Host"}
                 </h5>
 
-                <p className="text-xs text-slate-400">
+                <p className="break-all text-xs text-slate-500 dark:text-slate-400">
                   {studio.host?.email || "No email available"}
                 </p>
               </div>
@@ -639,8 +653,9 @@ export function StudioDetailsContant() {
 
           {/* Booking Button */}
           <button
+            type="button"
             onClick={() => setIsModalOpen(true)}
-            className="w-full py-4 bg-white hover:bg-slate-200 text-slate-950 font-bold rounded-xl transition-all shadow-xl text-sm"
+            className="w-full rounded-xl bg-indigo-600 py-4 text-sm font-bold text-white shadow-xl transition-all hover:bg-indigo-700 dark:hover:bg-indigo-500"
           >
             Book Workspace Now
           </button>
@@ -649,17 +664,27 @@ export function StudioDetailsContant() {
 
       {/* Booking Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm px-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-6 shadow-2xl">
-            <div className="flex justify-between items-center">
-              <h3 className="text-lg font-bold text-white">
+        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/50 px-4 py-6 backdrop-blur-sm dark:bg-slate-950/80">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="booking-modal-title"
+            className="my-auto w-full max-w-md space-y-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-800 dark:bg-slate-900"
+          >
+            {/* Modal Header */}
+            <div className="flex items-center justify-between gap-4">
+              <h3
+                id="booking-modal-title"
+                className="text-lg font-bold text-slate-900 dark:text-white"
+              >
                 Reserve Studio Slot
               </h3>
 
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="text-slate-400 hover:text-white"
+                aria-label="Close booking modal"
+                className="rounded-lg p-1 text-xl text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
               >
                 &times;
               </button>
@@ -668,16 +693,21 @@ export function StudioDetailsContant() {
             <form onSubmit={handleBookingSubmit} className="space-y-4">
               {/* Booking Date */}
               <div>
-                <label className="block text-xs font-medium text-slate-300 uppercase mb-1">
+                <label
+                  htmlFor="bookingDate"
+                  className="mb-1 block text-xs font-medium uppercase text-slate-600 dark:text-slate-300"
+                >
                   Booking Date
                 </label>
 
                 <input
+                  id="bookingDate"
                   type="date"
                   value={bookingDate}
                   onChange={(e) => setBookingDate(e.target.value)}
                   min={(() => {
                     const d = new Date();
+
                     return [
                       d.getFullYear(),
                       String(d.getMonth() + 1).padStart(2, "0"),
@@ -685,66 +715,79 @@ export function StudioDetailsContant() {
                     ].join("-");
                   })()}
                   required
-                  className="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500"
+                  disabled={bookingLoading}
+                  className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 disabled:opacity-50 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"
                 />
               </div>
 
               {/* Start Time */}
               <div>
-                <label className="block text-xs font-medium text-slate-300 uppercase mb-1">
+                <label
+                  htmlFor="startTime"
+                  className="mb-1 block text-xs font-medium uppercase text-slate-600 dark:text-slate-300"
+                >
                   Start Time
                 </label>
 
                 <input
+                  id="startTime"
                   type="time"
                   value={startTime}
                   onChange={(e) => setStartTime(e.target.value)}
                   required
-                  className="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500"
+                  disabled={bookingLoading}
+                  className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 disabled:opacity-50 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"
                 />
               </div>
 
               {/* Hours */}
               <div>
-                <label className="block text-xs font-medium text-slate-300 uppercase mb-1">
+                <label
+                  htmlFor="bookingHours"
+                  className="mb-1 block text-xs font-medium uppercase text-slate-600 dark:text-slate-300"
+                >
                   Total Hours ({hours} hrs)
                 </label>
 
                 <input
+                  id="bookingHours"
                   type="number"
                   min={1}
                   max={12}
                   value={hours}
                   onChange={(e) => setHours(Number(e.target.value))}
                   required
-                  className="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500"
+                  disabled={bookingLoading}
+                  className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 disabled:opacity-50 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"
                 />
               </div>
 
               {/* Total Amount */}
-              <div className="bg-slate-950 p-4 rounded-xl space-y-2 text-sm">
-                <div className="flex justify-between text-slate-400">
+              <div className="space-y-2 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm dark:border-slate-800 dark:bg-slate-950">
+                <div className="flex justify-between gap-3 text-slate-600 dark:text-slate-400">
                   <span>Hourly Rate:</span>
+
                   <span>
                     ${studio.hourlyRate} x {hours} hrs
                   </span>
                 </div>
 
-                <div className="flex justify-between font-bold text-white pt-2 border-t border-slate-800">
+                <div className="flex justify-between gap-3 border-t border-slate-200 pt-2 font-bold text-slate-900 dark:border-slate-800 dark:text-white">
                   <span>Total Amount:</span>
 
-                  <span className="text-indigo-400">
+                  <span className="text-indigo-600 dark:text-indigo-400">
                     ${studio.hourlyRate * hours}
                   </span>
                 </div>
               </div>
 
-              {/* Buttons */}
+              {/* Modal Buttons */}
               <div className="flex gap-3 pt-2">
                 <button
                   type="button"
                   onClick={() => {
                     setIsModalOpen(false);
+
                     toast.add({
                       title: "Booking cancelled",
                       description: "Your booking request has been discarded.",
@@ -752,7 +795,7 @@ export function StudioDetailsContant() {
                     });
                   }}
                   disabled={bookingLoading}
-                  className="w-1/2 py-2.5 bg-slate-800 text-slate-300 rounded-xl text-sm font-medium hover:bg-slate-700 disabled:opacity-50"
+                  className="w-1/2 rounded-xl border border-slate-300 bg-slate-100 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                 >
                   Cancel
                 </button>
@@ -760,7 +803,7 @@ export function StudioDetailsContant() {
                 <button
                   type="submit"
                   disabled={bookingLoading}
-                  className="w-1/2 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-sm font-medium disabled:opacity-50"
+                  className="w-1/2 rounded-xl bg-indigo-600 py-2.5 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50 dark:hover:bg-indigo-500"
                 >
                   {bookingLoading ? "Processing..." : "Confirm Booking"}
                 </button>

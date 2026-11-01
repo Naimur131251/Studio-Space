@@ -201,78 +201,95 @@ export function UpdateStudio({ params }: { params: Promise<{ id: string }> }) {
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-12">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-2xl space-y-6">
+    <div className="mx-auto max-w-3xl px-4 py-12 text-slate-900 dark:text-white">
+      <div className="space-y-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-xl dark:border-slate-800 dark:bg-slate-900 sm:p-8">
+        {/* Header */}
         <div>
-          <h1 className="text-2xl font-extrabold text-white">
+          <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white">
             Update Studio Listing
           </h1>
 
-          <p className="text-slate-400 text-sm mt-1">
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
             Edit your existing studio information
           </p>
         </div>
 
         <form onSubmit={handleUpdate} className="space-y-4">
           {/* Host Information */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-950/60 p-4 rounded-xl border border-slate-800">
+          <div className="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950/60 md:grid-cols-2">
             <div>
-              <label className="block text-xs font-medium text-slate-400 uppercase mb-1">
+              <label
+                htmlFor="hostName"
+                className="mb-1 block text-xs font-medium uppercase text-slate-500 dark:text-slate-400"
+              >
                 Host Name (Read-Only)
               </label>
 
               <input
+                id="hostName"
                 type="text"
                 name="hostName"
                 value={formData.hostName}
                 readOnly
-                className="w-full bg-transparent text-slate-400 text-sm outline-none"
+                className="w-full cursor-not-allowed rounded-lg border border-slate-200 bg-slate-100 px-3 py-2 text-sm text-slate-500 outline-none dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-400 uppercase mb-1">
+              <label
+                htmlFor="hostEmail"
+                className="mb-1 block text-xs font-medium uppercase text-slate-500 dark:text-slate-400"
+              >
                 Host Email (Read-Only)
               </label>
 
               <input
+                id="hostEmail"
                 type="email"
                 name="hostEmail"
                 value={formData.hostEmail}
                 readOnly
-                className="w-full bg-transparent text-slate-400 text-sm outline-none"
+                className="w-full cursor-not-allowed rounded-lg border border-slate-200 bg-slate-100 px-3 py-2 text-sm text-slate-500 outline-none dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400"
               />
             </div>
           </div>
 
           {/* Studio Title & Category */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
-              <label className="block text-xs font-medium text-slate-300 uppercase mb-1">
+              <label
+                htmlFor="title"
+                className="mb-1 block text-xs font-medium uppercase text-slate-600 dark:text-slate-300"
+              >
                 Studio Title
               </label>
 
               <input
+                id="title"
                 type="text"
                 name="title"
                 value={formData.title}
                 onChange={handleChange}
                 required
                 placeholder="Studio Title"
-                className="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500"
+                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-300 uppercase mb-1">
+              <label
+                htmlFor="category"
+                className="mb-1 block text-xs font-medium uppercase text-slate-600 dark:text-slate-300"
+              >
                 Category
               </label>
 
               <select
+                id="category"
                 name="category"
                 value={formData.category}
                 onChange={handleChange}
-                className="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500"
+                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"
               >
                 <option value="Photo Studio">Photo Studio</option>
                 <option value="Film Stage">Film Stage</option>
@@ -284,117 +301,145 @@ export function UpdateStudio({ params }: { params: Promise<{ id: string }> }) {
           </div>
 
           {/* Rate, Deposit & Capacity */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
             <div>
-              <label className="block text-xs font-medium text-slate-300 uppercase mb-1">
+              <label
+                htmlFor="hourlyRate"
+                className="mb-1 block text-xs font-medium uppercase text-slate-600 dark:text-slate-300"
+              >
                 Hourly Rate ($)
               </label>
 
               <input
+                id="hourlyRate"
                 type="number"
                 name="hourlyRate"
                 value={formData.hourlyRate}
                 onChange={handleChange}
                 min={1}
                 required
-                className="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500"
+                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-300 uppercase mb-1">
+              <label
+                htmlFor="securityDeposit"
+                className="mb-1 block text-xs font-medium uppercase text-slate-600 dark:text-slate-300"
+              >
                 Security Deposit ($)
               </label>
 
               <input
+                id="securityDeposit"
                 type="number"
                 name="securityDeposit"
                 value={formData.securityDeposit}
                 onChange={handleChange}
                 min={0}
                 required
-                className="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500"
+                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-300 uppercase mb-1">
+              <label
+                htmlFor="maxCapacity"
+                className="mb-1 block text-xs font-medium uppercase text-slate-600 dark:text-slate-300"
+              >
                 Max Capacity
               </label>
 
               <input
+                id="maxCapacity"
                 type="number"
                 name="maxCapacity"
                 value={formData.maxCapacity}
                 onChange={handleChange}
                 min={1}
                 required
-                className="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500"
+                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"
               />
             </div>
           </div>
 
           {/* Location */}
           <div>
-            <label className="block text-xs font-medium text-slate-300 uppercase mb-1">
+            <label
+              htmlFor="location"
+              className="mb-1 block text-xs font-medium uppercase text-slate-600 dark:text-slate-300"
+            >
               Location / Address
             </label>
 
             <input
+              id="location"
               type="text"
               name="location"
               value={formData.location}
               onChange={handleChange}
               required
-              className="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500"
+              className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"
             />
           </div>
 
           {/* Image URL */}
           <div>
-            <label className="block text-xs font-medium text-slate-300 uppercase mb-1">
+            <label
+              htmlFor="imageUrl"
+              className="mb-1 block text-xs font-medium uppercase text-slate-600 dark:text-slate-300"
+            >
               Image URL
             </label>
 
             <input
+              id="imageUrl"
               type="url"
               name="imageUrl"
               value={formData.imageUrl}
               onChange={handleChange}
               required
-              className="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500"
+              className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"
             />
           </div>
 
           {/* Amenities */}
           <div>
-            <label className="block text-xs font-medium text-slate-300 uppercase mb-1">
+            <label
+              htmlFor="amenities"
+              className="mb-1 block text-xs font-medium uppercase text-slate-600 dark:text-slate-300"
+            >
               Amenities (Comma Separated)
             </label>
 
             <input
+              id="amenities"
               type="text"
               name="amenities"
               value={formData.amenities}
               onChange={handleChange}
               placeholder="Cyc Wall, Soundproof, Green Screen, WiFi"
-              className="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500"
+              className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500"
             />
           </div>
 
           {/* Overview */}
           <div>
-            <label className="block text-xs font-medium text-slate-300 uppercase mb-1">
+            <label
+              htmlFor="overview"
+              className="mb-1 block text-xs font-medium uppercase text-slate-600 dark:text-slate-300"
+            >
               Detailed Overview
             </label>
 
             <textarea
+              id="overview"
               name="overview"
               rows={4}
               value={formData.overview}
               onChange={handleChange}
               required
-              className="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500"
+              className="w-full resize-y rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"
             />
           </div>
 
@@ -402,7 +447,7 @@ export function UpdateStudio({ params }: { params: Promise<{ id: string }> }) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-xl transition-all shadow-lg shadow-indigo-600/30 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full rounded-xl bg-indigo-600 py-3 text-sm font-medium text-white shadow-lg shadow-indigo-600/20 transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50 dark:hover:bg-indigo-500 cursor-pointer"
           >
             {loading ? "Saving Changes..." : "Save Changes"}
           </button>
@@ -418,11 +463,12 @@ export default function UpdateStudioPage({
   params: Promise<{ id: string }>;
 }) {
   return (
-    <div className="max-w-3xl mx-auto px-4 py-12">
-      {/* নেক্সট জেএস এর বিল্ড ইরর এড়াতে এখানে Suspense ব্যবহার করা হয়েছে */}
+    <div className="mx-auto max-w-3xl px-4 py-12">
       <Suspense
         fallback={
-          <div className="text-center text-white py-12">Loading Form...</div>
+          <div className="py-12 text-center text-slate-600 dark:text-white">
+            Loading Form...
+          </div>
         }
       >
         <UpdateStudio params={params} />

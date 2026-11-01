@@ -259,7 +259,8 @@ export default function MyBookingsPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8">
+    <div className="mx-auto max-w-7xl space-y-8 px-4 py-12 text-slate-900 dark:text-white sm:px-6 lg:px-8">
+      {/* Cancel Confirmation Dialog */}
       <AlertDialog
         open={isCancelDialogOpen}
         onOpenChange={(open) => {
@@ -272,13 +273,13 @@ export default function MyBookingsPage() {
           }
         }}
       >
-        <AlertDialogContent className="bg-slate-900 border-slate-800 text-white">
+        <AlertDialogContent className="border border-slate-200 bg-white text-slate-900 dark:border-slate-800 dark:bg-slate-900 dark:text-white">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-xl">
               Cancel Booking?
             </AlertDialogTitle>
 
-            <AlertDialogDescription className="text-slate-400">
+            <AlertDialogDescription className="text-slate-600 dark:text-slate-400">
               Are you sure you want to cancel this studio booking? This action
               cannot be undone.
             </AlertDialogDescription>
@@ -287,7 +288,7 @@ export default function MyBookingsPage() {
           <AlertDialogFooter>
             <AlertDialogCancel
               disabled={!!cancellingId}
-              className="bg-slate-800 border-slate-700 text-white hover:bg-slate-700 hover:text-white"
+              className="border-slate-300 bg-slate-100 text-slate-800 hover:bg-slate-200 hover:text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700 dark:hover:text-white"
             >
               Keep Booking
             </AlertDialogCancel>
@@ -298,7 +299,7 @@ export default function MyBookingsPage() {
                 void confirmCancel();
               }}
               disabled={!!cancellingId}
-              className="bg-red-600 hover:bg-red-700 text-white"
+              className="bg-red-600 text-white hover:bg-red-700"
             >
               {cancellingId ? "Cancelling..." : "Yes, Cancel Booking"}
             </AlertDialogAction>
@@ -307,69 +308,83 @@ export default function MyBookingsPage() {
       </AlertDialog>
 
       {/* Header */}
-      <div className="border-b border-slate-800 pb-6">
-        <h1 className="text-3xl font-extrabold text-white">My Bookings</h1>
+      <div className="border-b border-slate-200 pb-6 dark:border-slate-800">
+        <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white">
+          My Bookings
+        </h1>
 
-        <p className="text-slate-400 text-sm mt-1">
+        <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
           Track and manage your studio reservations
         </p>
       </div>
 
       {/* Loading */}
       {loading ? (
-        <div className="text-center py-20 bg-slate-900 rounded-2xl">
-          <p className="text-indigo-400 animate-pulse">Loading bookings...</p>
+        <div className="rounded-2xl border border-slate-200 bg-white py-20 text-center dark:border-slate-800 dark:bg-slate-900">
+          <p className="animate-pulse text-indigo-600 dark:text-indigo-400">
+            Loading bookings...
+          </p>
         </div>
       ) : error ? (
         /* Error */
-        <div className="text-center py-20 bg-slate-900 border border-red-500/20 rounded-2xl space-y-4">
-          <p className="text-red-400">{error}</p>
+        <div className="space-y-4 rounded-2xl border border-red-200 bg-white py-20 text-center dark:border-red-500/20 dark:bg-slate-900">
+          <p className="text-red-600 dark:text-red-400">{error}</p>
 
           <button
+            type="button"
             onClick={fetchMyBookings}
-            className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-semibold"
+            className="rounded-lg bg-indigo-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700"
           >
             Try Again
           </button>
         </div>
       ) : bookings.length === 0 ? (
-        /* Empty state */
-        <div className="text-center py-20 bg-slate-900 border border-slate-800 rounded-2xl">
-          <p className="text-slate-400">No studio bookings found.</p>
+        /* Empty State */
+        <div className="rounded-2xl border border-slate-200 bg-white py-20 text-center dark:border-slate-800 dark:bg-slate-900">
+          <p className="text-slate-600 dark:text-slate-400">
+            No studio bookings found.
+          </p>
         </div>
       ) : (
-        /* Bookings table */
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-x-auto shadow-xl">
-          <table className="w-full text-left text-sm text-slate-300">
-            <thead className="bg-slate-950 text-slate-400 uppercase text-xs">
+        /* Bookings Table */
+        <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-xl dark:border-slate-800 dark:bg-slate-900">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-slate-100 text-xs uppercase text-slate-600 dark:bg-slate-950 dark:text-slate-400">
               <tr>
-                <th className="px-6 py-4">Studio Workspace</th>
+                <th className="whitespace-nowrap px-6 py-4">
+                  Studio Workspace
+                </th>
                 <th className="px-6 py-4">Category</th>
-                <th className="px-6 py-4">Date & Time</th>
+                <th className="whitespace-nowrap px-6 py-4">Date &amp; Time</th>
                 <th className="px-6 py-4">Amount</th>
                 <th className="px-6 py-4">Status</th>
                 <th className="px-6 py-4 text-right">Action</th>
               </tr>
             </thead>
 
-            <tbody className="divide-y divide-slate-800">
+            <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
               {bookings.map((booking) => (
-                <tr key={booking._id} className="hover:bg-slate-800/50">
-                  <td className="px-6 py-4 font-semibold text-white">
+                <tr
+                  key={booking._id}
+                  className="transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                >
+                  <td className="px-6 py-4 font-semibold text-slate-900 dark:text-white">
                     {booking.studioTitle}
                   </td>
 
-                  <td className="px-6 py-4">{booking.category}</td>
+                  <td className="px-6 py-4 text-slate-600 dark:text-slate-300">
+                    {booking.category}
+                  </td>
 
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 text-slate-700 dark:text-slate-300">
                     <div>{booking.date}</div>
 
-                    <div className="text-xs text-slate-500">
+                    <div className="text-xs text-slate-500 dark:text-slate-500">
                       {booking.timeSlot}
                     </div>
                   </td>
 
-                  <td className="px-6 py-4 font-bold text-indigo-400">
+                  <td className="whitespace-nowrap px-6 py-4 font-bold text-indigo-600 dark:text-indigo-400">
                     ${booking.totalAmount}
                   </td>
 
@@ -377,13 +392,14 @@ export default function MyBookingsPage() {
                     {getStatusBadge(booking.status)}
                   </td>
 
-                  <td className="px-6 py-4 text-right">
+                  <td className="whitespace-nowrap px-6 py-4 text-right">
                     {(booking.status === "pending" ||
                       booking.status === "confirmed") && (
                       <button
+                        type="button"
                         disabled={cancellingId === booking._id}
                         onClick={() => handleCancel(booking._id)}
-                        className="px-3 py-1.5 bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white rounded-lg text-xs font-medium disabled:opacity-50"
+                        className="rounded-lg bg-red-50 px-3 py-1.5 text-xs font-medium text-red-600 transition hover:bg-red-600 hover:text-white disabled:cursor-not-allowed disabled:opacity-50 dark:bg-red-600/20 dark:text-red-400 dark:hover:bg-red-600 dark:hover:text-white"
                       >
                         {cancellingId === booking._id
                           ? "Cancelling..."
