@@ -2,17 +2,35 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { Eye, EyeOff } from "lucide-react"; // Imported eye icons
+import { useRouter, useSearchParams } from "next/navigation";
+import { Eye, EyeOff } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false); // State to toggle visibility
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Previous page URL
+  const callbackUrl = searchParams.get("callbackUrl");
+
+  // Prevent unsafe external redirects
+  const getRedirectUrl = () => {
+    if (
+      callbackUrl &&
+      callbackUrl.startsWith("/") &&
+      !callbackUrl.startsWith("//")
+    ) {
+      return callbackUrl;
+    }
+
+    return "/";
+  };
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -38,7 +56,7 @@ export default function LoginPage() {
 
       console.log("Login user:", data);
 
-      router.push("/");
+      router.replace(getRedirectUrl());
       router.refresh();
     } catch (err) {
       console.error("Login error:", err);
@@ -48,11 +66,21 @@ export default function LoginPage() {
     }
   };
 
+  // Google Login
   const handleGoogleLogin = async () => {
-    await authClient.signIn.social({
-      provider: "google",
-    });
-    router.push("/");
+    try {
+      setError("");
+      setLoading(true);
+
+      await authClient.signIn.social({
+        provider: "google",
+        callbackURL: getRedirectUrl(),
+      });
+    } catch (err) {
+      console.error("Google login error:", err);
+      setError("Google login failed. Please try again.");
+      setLoading(false);
+    }
   };
 
   return (
@@ -83,6 +111,8 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="harry@studiospace.com"
+              required
+              disabled={loading}
               className="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500"
             />
           </div>
@@ -104,12 +134,14 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
+                required
+                disabled={loading}
                 className="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded-xl pl-4 pr-11 py-2.5 text-sm focus:outline-none focus:border-indigo-500"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 focus:outline-none"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200"
               >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
@@ -119,23 +151,26 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-xl transition-all shadow-lg shadow-indigo-600/30 text-sm"
+            className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-xl transition-all shadow-lg shadow-indigo-600/30 text-sm disabled:opacity-50"
           >
             {loading ? "Logging in..." : "Login"}
           </button>
         </form>
 
         <div className="relative flex py-2 items-center">
-          <div className="flex grow border-t border-slate-800"></div>
+          <div className="flex grow border-t border-slate-800" />
+
           <span className="flex shrink mx-4 text-xs text-slate-500 uppercase">
             Or continue with
           </span>
-          <div className="flex grow border-t border-slate-800"></div>
+
+          <div className="flex grow border-t border-slate-800" />
         </div>
 
         <button
           onClick={handleGoogleLogin}
-          className="w-full flex items-center justify-center gap-3 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-sm font-medium transition-all"
+          disabled={loading}
+          className="w-full flex items-center justify-center gap-3 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-sm font-medium transition-all disabled:opacity-50"
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24">
             <path
