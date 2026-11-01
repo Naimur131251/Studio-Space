@@ -52,7 +52,7 @@ export default function Footer() {
             </li>
             <li>
               <Link
-                href="/how-it-works"
+                href="/#how-it-works"
                 className="hover:text-white transition-colors"
               >
                 How It Works
@@ -60,7 +60,7 @@ export default function Footer() {
             </li>
             <li>
               <Link
-                href="/about"
+                href="/#about"
                 className="hover:text-white transition-colors"
               >
                 About Us

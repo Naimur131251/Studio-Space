@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export default function ExtraHome() {
   return (
@@ -55,6 +56,14 @@ export default function ExtraHome() {
               </p>
             </div>
           ))}
+        </div>
+        <div className="text-center pt-4">
+          <Link
+            href="/studios"
+            className="px-8 py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-xl transition-all shadow-lg shadow-indigo-600/30 text-sm inline-block"
+          >
+            Start Exploring Studios Now
+          </Link>
         </div>
       </section>
 
