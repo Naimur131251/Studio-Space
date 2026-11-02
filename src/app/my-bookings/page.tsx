@@ -323,7 +323,7 @@ export default function MyBookingsPage() {
         </div>
 
         <Link
-          href="/add-studio"
+          href="/studios"
           className="inline-flex items-center justify-center rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white shadow-md shadow-indigo-600/20 transition-colors hover:bg-indigo-700 dark:hover:bg-indigo-500"
         >
           + Add New Book
