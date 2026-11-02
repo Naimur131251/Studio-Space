@@ -99,7 +99,7 @@ export default function Navbar() {
       <div
         className="
           relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8
-          h-16 flex items-center justify-between
+          h-16 grid grid-cols-[1fr_auto_1fr] items-center
         "
       >
         {/* Hamburger - Mobile Only */}
@@ -112,12 +112,9 @@ export default function Navbar() {
           aria-label="Toggle navigation menu"
           aria-expanded={mobileMenuOpen}
           className="
-            md:hidden inline-flex h-10 w-10 shrink-0
+            md:hidden col-start-1 row-start-1 justify-self-start
+            inline-flex h-10 w-10 shrink-0
             items-center justify-center rounded-lg
-            border border-slate-300
-            text-slate-700 hover:bg-slate-100
-            dark:border-slate-700 dark:text-white
-            dark:hover:bg-slate-800
           "
         >
           {mobileMenuOpen ? (
@@ -135,10 +132,11 @@ export default function Navbar() {
             closeDropdown();
           }}
           className="
-            flex items-center gap-2
-            text-xl font-bold tracking-tight
-            absolute left-1/2 -translate-x-1/2
-            md:static md:translate-x-0
+            col-start-2 row-start-1
+            flex items-center justify-center gap-2
+            text-lg sm:text-xl font-bold tracking-tight
+            whitespace-nowrap
+            md:col-start-1 md:justify-self-start
           "
         >
           <svg
@@ -167,7 +165,9 @@ export default function Navbar() {
         {/* Desktop Navigation */}
         <nav
           className="
-            hidden md:flex items-center gap-6
+            hidden md:flex
+            col-start-2 row-start-1
+            items-center justify-center gap-6
             text-sm font-medium
           "
         >
@@ -187,7 +187,7 @@ export default function Navbar() {
         </nav>
 
         {/* Right Side Actions */}
-        <div className="flex items-center gap-3 sm:gap-5">
+        <div className="col-start-3 row-start-1 flex items-center justify-self-end gap-2 sm:gap-5">
           {/* Theme Toggle */}
           <button
             type="button"

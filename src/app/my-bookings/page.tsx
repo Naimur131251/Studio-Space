@@ -14,6 +14,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 type BookingStatus = "pending" | "confirmed" | "completed" | "cancelled";
 
@@ -310,14 +311,23 @@ export default function MyBookingsPage() {
       </AlertDialog>
 
       {/* Header */}
-      <div className="border-b border-slate-200 pb-6 dark:border-slate-800">
-        <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white">
-          My Bookings
-        </h1>
+      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center border-b border-slate-200 pb-6 dark:border-slate-800">
+        <div>
+          <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white">
+            My Bookings
+          </h1>
 
-        <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-          Track and manage your studio reservations
-        </p>
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+            Track and manage your studio reservations
+          </p>
+        </div>
+
+        <Link
+          href="/add-studio"
+          className="inline-flex items-center justify-center rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white shadow-md shadow-indigo-600/20 transition-colors hover:bg-indigo-700 dark:hover:bg-indigo-500"
+        >
+          + Add New Book
+        </Link>
       </div>
 
       {/* Loading */}

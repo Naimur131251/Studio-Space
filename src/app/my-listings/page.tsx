@@ -204,13 +204,6 @@ export default function MyListingsPage() {
           <p className="text-slate-600 dark:text-slate-400">
             You haven&apos;t listed any studio workspaces yet.
           </p>
-
-          <Link
-            href="/add-studio"
-            className="mt-4 inline-flex rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700"
-          >
-            Add Your First Studio
-          </Link>
         </div>
       ) : (
         /* Listings Table */
