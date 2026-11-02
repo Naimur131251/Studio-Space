@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { FaFacebookF, FaInstagram, FaYoutube } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
+import Logo from "@/app/icon.svg";
+import Image from "next/image";
 
 export default function Footer() {
   return (
@@ -22,17 +24,14 @@ export default function Footer() {
               transition-colors
             "
           >
-            <svg
-              className="w-7 h-7 text-indigo-500"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <circle cx="12" cy="12" r="10" />
-              <circle cx="12" cy="12" r="3" />
-              <path d="M12 2a10 10 0 0 1 8.66 5M2 12a10 10 0 0 1 5-8.66M12 22a10 10 0 0 1-8.66-5M22 12a10 10 0 0 1-5 8.66" />
-            </svg>
+            <Image
+              src={Logo}
+              alt="StudioSpace Logo"
+              width={42}
+              height={42}
+              priority
+              className="h-9 w-9 sm:h-10 sm:w-10 object-contain mt-1 -ml-1.5"
+            />
             <span>StudioSpace</span>
           </Link>
 

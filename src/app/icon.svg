@@ -1,0 +1,25 @@
+<svg width="512" height="512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="wave" x1="0" y1="140" x2="0" y2="370" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#CF94FF"/>
+      <stop offset="0.5" stop-color="#A34FF8"/>
+      <stop offset="1" stop-color="#790BEF"/>
+    </linearGradient>
+    <filter id="glow" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur stdDeviation="7" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+<!--Audio Waveform-->
+  <g fill="url(#wave)" filter="url(#glow)">
+    <rect x="115" y="211" width="36" height="90" rx="18"/>
+    <rect x="165" y="166" width="37" height="166" rx="18.5"/>
+    <rect x="215" y="125" width="38" height="232" rx="19"/>
+    <rect x="270" y="208" width="30" height="100" rx="15"/>
+    <rect x="315" y="166" width="38" height="166" rx="19"/>
+    <rect x="365" y="211" width="36" height="90" rx="18"/>
+  </g>
+</svg>

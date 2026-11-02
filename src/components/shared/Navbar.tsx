@@ -7,7 +7,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "../ui/toast";
 import { useTheme } from "next-themes";
-
+import Logo from "@/app/icon.svg";
 import { Menu, Moon, Sun, X, UserRound } from "lucide-react";
 
 export default function Navbar() {
@@ -133,23 +133,20 @@ export default function Navbar() {
           }}
           className="
             col-start-2 row-start-1
-            flex items-center justify-center gap-2
+            flex items-center justify-center gap-1
             text-lg sm:text-xl font-bold tracking-tight
             whitespace-nowrap
             md:col-start-1 md:justify-self-start
           "
         >
-          <svg
-            className="w-7 h-7 text-indigo-500"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-          >
-            <circle cx="12" cy="12" r="10" />
-            <circle cx="12" cy="12" r="3" />
-            <path d="M12 2a10 10 0 0 1 8.66 5M2 12a10 10 0 0 1 5-8.66M12 22a10 10 0 0 1-8.66-5M22 12a10 10 0 0 1-5 8.66" />
-          </svg>
+          <Image
+            src={Logo}
+            alt="StudioSpace Logo"
+            width={42}
+            height={42}
+            priority
+            className="h-9 w-9 sm:h-10 sm:w-10 object-contain mt-1"
+          />
 
           <span
             className="
