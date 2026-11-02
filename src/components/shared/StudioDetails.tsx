@@ -46,7 +46,7 @@ interface Studio {
   location: string;
   images: string[];
   imageUrl: string;
-  amenities: Amenity[];
+  amenities: Amenity[] | string;
   overview: string;
   rating: number;
   host: Host;
@@ -248,7 +248,7 @@ export function StudioDetailsContant() {
         title: "Slot Already Booked!",
         description:
           data.message ||
-          "Ei time-e already ekjon kore rekheche, porer time e booking korun.",
+          "This slot is already taken, please choose another time.",
         type: "error",
       });
       throw new Error(data.message || "Slot already booked.");
@@ -544,6 +544,21 @@ export function StudioDetailsContant() {
     );
   }
 
+  const amenities = Array.isArray(studio.amenities)
+    ? studio.amenities.map((item) =>
+        typeof item === "string" ? { name: item, icon: "✓" } : item,
+      )
+    : typeof studio.amenities === "string"
+      ? studio.amenities
+          .split(",")
+          .map((item) => item.trim())
+          .filter(Boolean)
+          .map((item) => ({
+            name: item,
+            icon: "✓",
+          }))
+      : [];
+
   return (
     <div className="mx-auto max-w-7xl space-y-10 px-4 py-12 text-slate-900 transition-colors sm:px-6 lg:px-8 dark:text-white">
       {/* Header */}
@@ -637,14 +652,14 @@ export function StudioDetailsContant() {
             </h3>
 
             <div className="space-y-3">
-              {studio.amenities?.map((item, idx) => (
+              {amenities.map((item, idx) => (
                 <div
                   key={idx}
                   className="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200"
                 >
                   <span className="flex items-center gap-2">
                     <span className="text-indigo-600 dark:text-indigo-400">
-                      {item.icon}
+                      {item.icon || "✓"}
                     </span>
                     {item.name}
                   </span>
@@ -704,13 +719,13 @@ export function StudioDetailsContant() {
             </h4>
 
             <div className="grid grid-cols-1 gap-2">
-              {studio.amenities?.map((amenity, idx) => (
+              {amenities.map((amenity, idx) => (
                 <div
                   key={idx}
                   className="flex items-center gap-3 py-1 text-sm text-slate-700 dark:text-slate-200"
                 >
                   <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-indigo-600 dark:bg-slate-800 dark:text-indigo-400">
-                    {amenity.icon}
+                    {amenity.icon || "✓"}
                   </span>
 
                   <span>{amenity.name}</span>
