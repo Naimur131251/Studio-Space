@@ -4,10 +4,16 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "@/components/ui/toast";
 import { getTokenFromClient } from "@/lib/getTokenFromClient";
+import { authClient } from "@/lib/auth-client";
 
 export default function AddStudioPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+
+  const { data: session, isPending } = authClient.useSession();
+
+  const hostName = session?.user?.name ?? "";
+  const hostEmail = session?.user?.email ?? "";
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -276,7 +282,7 @@ export default function AddStudioPage() {
                 id="hostName"
                 type="text"
                 readOnly
-                value={"Naimur"}
+                value={isPending ? "Loading..." : hostName}
                 className="w-full cursor-not-allowed rounded-lg border border-slate-200 bg-slate-100 px-3 py-2 text-sm font-medium text-slate-500 outline-none dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400"
               />
             </div>
@@ -293,7 +299,7 @@ export default function AddStudioPage() {
                 id="hostEmail"
                 type="email"
                 readOnly
-                value={"naimur@mail"}
+                value={isPending ? "Loading..." : hostEmail}
                 className="w-full cursor-not-allowed rounded-lg border border-slate-200 bg-slate-100 px-3 py-2 text-sm font-medium text-slate-500 outline-none dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400"
               />
             </div>

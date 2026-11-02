@@ -53,6 +53,44 @@ export function UpdateStudio({ params }: { params: Promise<{ id: string }> }) {
     }));
   };
 
+  // Fetch logged-in user information
+  useEffect(() => {
+    const fetchLoggedInUser = async () => {
+      try {
+        const token = await getTokenFromClient();
+
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/auth/me`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            cache: "no-store",
+          },
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          console.error("User API Error:", response.status, data);
+          throw new Error(data.message || "Failed to fetch user information");
+        }
+
+        const user = data.user;
+
+        setFormData((prev) => ({
+          ...prev,
+          hostName: user.name || "",
+          hostEmail: user.email || "",
+        }));
+      } catch (error) {
+        console.error("Fetch logged-in user error:", error);
+      }
+    };
+
+    fetchLoggedInUser();
+  }, []);
+
   // 1. Fetch existing studio data
   useEffect(() => {
     const fetchStudio = async () => {
