@@ -13,6 +13,16 @@ import {
 import { useParams, useRouter } from "next/navigation";
 import { getTokenFromClient } from "@/lib/getTokenFromClient";
 import { toast } from "../ui/toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 // Types
 interface Amenity {
@@ -51,6 +61,12 @@ interface BookingPayload {
   totalAmount: number;
 }
 
+interface UserBooking {
+  _id: string;
+  studioId: string;
+  status: string;
+}
+
 const PENDING_BOOKING_KEY = "pending-studio-booking";
 
 export function StudioDetailsContant() {
@@ -76,6 +92,84 @@ export function StudioDetailsContant() {
 
   // Prevent duplicate automatic submission
   const bookingProcessed = useRef(false);
+
+  const [userBookings, setUserBookings] = useState<UserBooking[]>([]);
+  const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
+
+  const confirmCancel = async () => {
+    if (!existingBooking) return;
+    try {
+      setCancellingId(existingBooking._id);
+      const token = await getTokenFromClient();
+
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/bookings/${existingBooking._id}/cancel`,
+        {
+          method: "PATCH",
+          headers: { authorization: `Bearer ${token}` },
+        },
+      );
+
+      if (res.ok) {
+        toast.add({
+          title: "Booking Cancelled",
+          description: "Your reservation has been cancelled successfully.",
+          type: "success",
+        });
+
+        // স্টেট আপডেট করে বাটনটি সাথে সাথে "Book Workspace Now"-এ ফিরিয়ে আনা
+        setUserBookings((prev) =>
+          prev.map((b) =>
+            b._id === existingBooking._id ? { ...b, status: "cancelled" } : b,
+          ),
+        );
+
+        setIsCancelDialogOpen(false);
+      } else {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Failed to cancel booking.");
+      }
+    } catch (error) {
+      toast.add({
+        title: "Error",
+        description:
+          error instanceof Error ? error.message : "Could not cancel booking.",
+        type: "error",
+      });
+    } finally {
+      setCancellingId(null);
+    }
+  };
+
+  useEffect(() => {
+    const fetchUserBookings = async () => {
+      try {
+        const token = await getTokenFromClient();
+        if (!token) return;
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/my-bookings`,
+          {
+            headers: { authorization: `Bearer ${token}` },
+          },
+        );
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          setUserBookings(data);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchUserBookings();
+  }, [id]);
+
+  const existingBooking = userBookings.find(
+    (b) =>
+      String(b.studioId) === String(id) &&
+      (String(b.status).toLowerCase() === "pending" ||
+        String(b.status).toLowerCase() === "confirmed"),
+  );
 
   // Fetch studio details
   useEffect(() => {
@@ -373,6 +467,11 @@ export function StudioDetailsContant() {
       setStartTime("");
       setHours(2);
 
+      setUserBookings((prev) => [
+        ...prev,
+        { _id: "temp-id", studioId: id, status: "pending" },
+      ]);
+
       router.push("/my-bookings");
     } catch (error) {
       console.error("Booking error:", error);
@@ -657,14 +756,66 @@ export function StudioDetailsContant() {
             </div>
           </div>
 
-          {/* Booking Button */}
-          <button
-            type="button"
-            onClick={() => setIsModalOpen(true)}
-            className="w-full rounded-xl bg-indigo-600 py-4 text-sm font-bold text-white shadow-xl transition-all hover:bg-indigo-700 dark:hover:bg-indigo-500"
+          {/* Booking Button or Cancel Button */}
+          {existingBooking ? (
+            <button
+              type="button"
+              onClick={() => setIsCancelDialogOpen(true)} // সরাসরি ক্যানসেল না করে ডায়ালগ ওপেন করবে
+              className="w-full rounded-xl bg-red-600 py-4 text-sm font-bold text-white shadow-xl transition-all hover:bg-red-700 cursor-pointer"
+            >
+              Cancel This Booking
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(true)}
+              className="w-full rounded-xl bg-indigo-600 py-4 text-sm font-bold text-white shadow-xl transition-all hover:bg-indigo-700 dark:hover:bg-indigo-500 cursor-pointer"
+            >
+              Book Workspace Now
+            </button>
+          )}
+
+          {/* --- Cancel Confirmation AlertDialog --- */}
+          <AlertDialog
+            open={isCancelDialogOpen}
+            onOpenChange={(open) => {
+              if (!cancellingId) {
+                setIsCancelDialogOpen(open);
+              }
+            }}
           >
-            Book Workspace Now
-          </button>
+            <AlertDialogContent className="border border-slate-200 bg-white text-slate-900 dark:border-slate-800 dark:bg-slate-900 dark:text-white">
+              <AlertDialogHeader>
+                <AlertDialogTitle className="text-xl">
+                  Cancel Booking?
+                </AlertDialogTitle>
+                <AlertDialogDescription className="text-slate-600 dark:text-slate-400">
+                  Are you sure you want to cancel this studio booking? This
+                  action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+
+              <AlertDialogFooter>
+                <AlertDialogCancel
+                  disabled={!!cancellingId}
+                  className="border-slate-300 bg-slate-100 text-slate-800 hover:bg-slate-200 hover:text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700 dark:hover:text-white"
+                >
+                  Keep Booking
+                </AlertDialogCancel>
+
+                <AlertDialogAction
+                  onClick={(e) => {
+                    e.preventDefault();
+                    void confirmCancel();
+                  }}
+                  disabled={!!cancellingId}
+                  className="bg-red-600 text-white hover:bg-red-700"
+                >
+                  {cancellingId ? "Cancelling..." : "Yes, Cancel Booking"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
 

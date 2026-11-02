@@ -13,6 +13,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useRouter } from "next/navigation";
 
 type BookingStatus = "pending" | "confirmed" | "completed" | "cancelled";
 
@@ -38,6 +39,7 @@ export default function MyBookingsPage() {
   const [selectedBookingId, setSelectedBookingId] = useState<string | null>(
     null,
   );
+  const router = useRouter();
 
   // Fetch logged-in user's bookings
   const fetchMyBookings = useCallback(async () => {
@@ -366,33 +368,47 @@ export default function MyBookingsPage() {
               {bookings.map((booking) => (
                 <tr
                   key={booking._id}
-                  className="transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                  onClick={() => {
+                    // যদি booking-এ studioId থাকে, তবে সরাসরি studios/[id] পেজে রিডাইরেক্ট করবে
+                    if (booking.studioId) {
+                      router.push(`/studios/${booking.studioId}`);
+                    }
+                  }}
+                  className="transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer"
                 >
+                  {/* Studio Workspace */}
                   <td className="px-6 py-4 font-semibold text-slate-900 dark:text-white">
                     {booking.studioTitle}
                   </td>
 
+                  {/* Category */}
                   <td className="px-6 py-4 text-slate-600 dark:text-slate-300">
                     {booking.category}
                   </td>
 
+                  {/* Date & Time */}
                   <td className="px-6 py-4 text-slate-700 dark:text-slate-300">
                     <div>{booking.date}</div>
-
                     <div className="text-xs text-slate-500 dark:text-slate-500">
                       {booking.timeSlot}
                     </div>
                   </td>
 
+                  {/* Amount */}
                   <td className="whitespace-nowrap px-6 py-4 font-bold text-indigo-600 dark:text-indigo-400">
                     ${booking.totalAmount}
                   </td>
 
+                  {/* Status */}
                   <td className="px-6 py-4">
                     {getStatusBadge(booking.status)}
                   </td>
 
-                  <td className="whitespace-nowrap px-6 py-4 text-right">
+                  {/* Action (এখানে e.stopPropagation() দেওয়া আছে যাতে Cancel বাটনে ক্লিক করলে ডিটেইলস পেজে না যায়) */}
+                  <td
+                    className="whitespace-nowrap px-6 py-4 text-right"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     {(booking.status === "pending" ||
                       booking.status === "confirmed") && (
                       <button
