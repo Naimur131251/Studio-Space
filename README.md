@@ -304,15 +304,35 @@ Mark each item after testing it in your local or deployed application.
 
 - **Live Demo:** Add your deployment URL.
 - **GitHub Repository:** Add your repository URL.
-- **Issues / Feedback:** Add your issue tracker URL, if available.
+- **Issues / Feedback:** [Report a Bug or Suggest a Feature](https://github.com/Naimur131251/https://github.com/Naimur131251/StudioSpace-Client/issues)
 
-## 👤 Author
+## 👤 About the Author
 
-Add your name, GitHub profile, and any relevant contact or portfolio links here.
+<div align="center">
 
-## 📄 License
+### **Md Naimur Rahman**
 
-No license is specified in this README. Add a license after deciding how you want others to use, modify, and distribute the project.
+*Frontend Developer | Building modern web experiences*
+
+<p>
+  <a href="https://github.com/Naimur131251">
+    <img src="https://img.shields.io/badge/GitHub-Naimur131251-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub Profile" />
+  </a>
+  <a href="https://naimur-portfolio-1234.netlify.app/">
+    <img src="https://img.shields.io/badge/Portfolio-Visit%20Website-6366F1?style=for-the-badge&logo=netlify&logoColor=white" alt="Portfolio Website" />
+  </a>
+</p>
+
+**Passionate about creating responsive, interactive, and user-friendly web applications.**
+
+</div>
+
+---
+
+<p align="center">
+  ⭐ If you like StudioSpace, consider giving the repository a star!
+</p>
+
 
 ---
 
