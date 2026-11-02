@@ -6,7 +6,7 @@ export default function ExtraHome() {
     <div className="space-y-20 py-12 bg-white text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-white">
       {/* Section 1: How Booking Works */}
       <section
-        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-25"
         id="how-it-works"
       >
         <div className="text-center max-w-2xl mx-auto mb-12">
@@ -86,17 +86,29 @@ export default function ExtraHome() {
       {/* Section 2: Host Guarantee & Creator Support */}
       <section
         className="
-          max-w-7xl mx-auto px-4 sm:px-6 lg:px-8
+          max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-25
+        "
+        id="about"
+      >
+        <div className="text-center max-w-2xl mx-auto mb-12">
+          <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+            About Us
+          </h2>
+
+          <p className="text-slate-600 dark:text-slate-400 text-sm mt-2">
+            Innovating with passion to deliver exceptional digital experiences
+            daily
+          </p>
+        </div>
+        <div
+          className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center
           border rounded-3xl p-8 md:p-12
           bg-linear-to-b from-slate-50 to-slate-100
           border-slate-200
           dark:from-slate-900/40 dark:to-slate-900/90
           dark:border-slate-800/80
-          transition-colors duration-300
-        "
-        id="about"
-      >
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+          transition-colors duration-300"
+        >
           {/* Content */}
           <div className="space-y-4">
             <span className="text-indigo-600 dark:text-indigo-400 font-semibold text-xs tracking-widest uppercase">
