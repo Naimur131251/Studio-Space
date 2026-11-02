@@ -133,6 +133,7 @@ export function StudioDetailsContant() {
   }, [id, retry]);
 
   // Submit booking to backend
+  // Submit booking to backend
   const submitBooking = async (payload: BookingPayload, token: string) => {
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/bookings`,
@@ -146,16 +147,18 @@ export function StudioDetailsContant() {
       },
     );
 
-    if (response.status === 401 || response.status === 403) {
+    const data = await response.json();
+
+    if (response.status === 409) {
       toast.add({
-        title: "Session Expired",
-        description: "Unauthorized! Please login to check this page.",
+        title: "Slot Already Booked!",
+        description:
+          data.message ||
+          "Ei time-e already ekjon kore rekheche, porer time e booking korun.",
         type: "error",
       });
-      throw new Error("Unauthorized! Please login to check this page.");
+      throw new Error(data.message || "Slot already booked.");
     }
-
-    const data = await response.json();
 
     if (!response.ok) {
       throw new Error(data.message || "Booking failed.");
@@ -307,12 +310,15 @@ export function StudioDetailsContant() {
 
       const timeSlot = `${formatTime(startTime)} - ${formatTime(endTime)}`;
 
-      const bookingPayload: BookingPayload = {
+      // StudioDetails.tsx এর ভেতরে handleBookingSubmit ফাংশনটি এভাবে আপডেট করুন:
+      const bookingPayload = {
         studioId: studio._id,
         studioTitle: studio.title,
         category: studio.category,
         bookingDate,
-        timeSlot,
+        startTime,
+        hours: Number(hours),
+        timeSlot, // "10:00 AM - 12:00 PM"
         totalAmount: studio.hourlyRate * hours,
       };
 
