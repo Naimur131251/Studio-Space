@@ -51,6 +51,7 @@ const featuredCategories = [
     keywords: ["photo studios", "photo studio", "photography"],
     icon: Camera,
     description: "Capture your creative vision",
+    image: "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=800",
     color: "from-purple-500/20",
   },
   {
@@ -59,6 +60,7 @@ const featuredCategories = [
     keywords: ["sound stages", "sound stage"],
     icon: Clapperboard,
     description: "Professional spaces for production",
+    image: "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=800",
     color: "from-blue-500/20",
   },
   {
@@ -67,6 +69,7 @@ const featuredCategories = [
     keywords: ["podcast rooms", "podcast room", "podcasting"],
     icon: Mic2,
     description: "Create your next great podcast",
+    image: "https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=800",
     color: "from-pink-500/20",
   },
   {
@@ -75,6 +78,7 @@ const featuredCategories = [
     keywords: ["music suites", "music suite", "music studio"],
     icon: Music,
     description: "Make music without limits",
+    image: "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=800",
     color: "from-indigo-500/20",
   },
   {
@@ -83,6 +87,7 @@ const featuredCategories = [
     keywords: ["art workshops", "art workshop", "art studio"],
     icon: Palette,
     description: "Bring your artistic ideas to life",
+    image: "https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=800",
     color: "from-orange-500/20",
   },
 ];
@@ -191,12 +196,7 @@ async function CategoryList() {
     return {
       ...featured,
       categorySlug: matchedCategory?.slug || featured.slug,
-      image:
-        topStudio?.image ||
-        topStudio?.imageUrl ||
-        topStudio?.images?.[0] ||
-        matchedCategory?.image ||
-        matchedCategory?.imageUrl,
+      image: featured.image,
       topRating: topStudio?.averageRating ?? topStudio?.rating ?? 0,
     };
   });
