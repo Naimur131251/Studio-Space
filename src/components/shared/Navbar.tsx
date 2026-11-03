@@ -411,6 +411,19 @@ export default function Navbar() {
                     </div>
 
                     <Link
+                      href="/studios"
+                      onClick={closeDropdown}
+                      className="
+                        block px-5 py-4
+                        hover:bg-slate-100
+                        dark:hover:bg-slate-700
+                        transition-colors
+                      "
+                    >
+                      Dashboard
+                    </Link>
+
+                    <Link
                       href="/add-studio"
                       onClick={closeDropdown}
                       className="

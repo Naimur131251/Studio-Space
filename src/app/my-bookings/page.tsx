@@ -276,7 +276,7 @@ export default function MyBookingsPage() {
           }
         }}
       >
-        <AlertDialogContent className="border border-slate-200 bg-white text-slate-900 dark:border-slate-800 dark:bg-slate-900 dark:text-white">
+        <AlertDialogContent className="border border-slate-200 bg-white text-slate-900 dark:border-slate-800 dark:bg-slate-900 dark:text-white max-w-[90vw] sm:max-w-lg rounded-2xl">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-xl">
               Cancel Booking?
@@ -288,10 +288,10 @@ export default function MyBookingsPage() {
             </AlertDialogDescription>
           </AlertDialogHeader>
 
-          <AlertDialogFooter>
+          <AlertDialogFooter className="flex-col-reverse gap-2 sm:flex-row">
             <AlertDialogCancel
               disabled={!!cancellingId}
-              className="border-slate-300 bg-slate-100 text-slate-800 hover:bg-slate-200 hover:text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700 dark:hover:text-white"
+              className="w-full sm:w-auto border-slate-300 bg-slate-100 text-slate-800 hover:bg-slate-200 hover:text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700 dark:hover:text-white"
             >
               Keep Booking
             </AlertDialogCancel>
@@ -302,7 +302,7 @@ export default function MyBookingsPage() {
                 void confirmCancel();
               }}
               disabled={!!cancellingId}
-              className="bg-red-600 text-white hover:bg-red-700"
+              className="w-full sm:w-auto bg-red-600 text-white hover:bg-red-700"
             >
               {cancellingId ? "Cancelling..." : "Yes, Cancel Booking"}
             </AlertDialogAction>
@@ -313,7 +313,7 @@ export default function MyBookingsPage() {
       {/* Header */}
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center border-b border-slate-200 pb-6 dark:border-slate-800">
         <div>
-          <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white">
+          <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white sm:text-3xl">
             My Bookings
           </h1>
 
@@ -324,13 +324,13 @@ export default function MyBookingsPage() {
 
         <Link
           href="/studios"
-          className="inline-flex items-center justify-center rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white shadow-md shadow-indigo-600/20 transition-colors hover:bg-indigo-700 dark:hover:bg-indigo-500"
+          className="inline-flex items-center justify-center rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white shadow-md shadow-indigo-600/20 transition-colors hover:bg-indigo-700 dark:hover:bg-indigo-500 w-full sm:w-auto text-center"
         >
           + Add New Book
         </Link>
       </div>
 
-      {/* Loading */}
+      {/* Loading / Error / Empty States */}
       {loading ? (
         <div className="rounded-2xl border border-slate-200 bg-white py-20 text-center dark:border-slate-800 dark:bg-slate-900">
           <p className="animate-pulse text-indigo-600 dark:text-indigo-400">
@@ -339,13 +339,13 @@ export default function MyBookingsPage() {
         </div>
       ) : error ? (
         /* Error */
-        <div className="space-y-4 rounded-2xl border border-red-200 bg-white py-20 text-center dark:border-red-500/20 dark:bg-slate-900">
+        <div className="space-y-4 rounded-2xl border border-red-200 bg-white py-20 text-center dark:border-red-500/20 dark:bg-slate-900 px-4">
           <p className="text-red-600 dark:text-red-400">{error}</p>
 
           <button
             type="button"
             onClick={fetchMyBookings}
-            className="rounded-lg bg-indigo-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700"
+            className="rounded-lg bg-indigo-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700 w-full sm:w-auto"
           >
             Try Again
           </button>
@@ -358,85 +358,147 @@ export default function MyBookingsPage() {
           </p>
         </div>
       ) : (
-        /* Bookings Table */
-        <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-xl dark:border-slate-800 dark:bg-slate-900">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-slate-100 text-xs uppercase text-slate-600 dark:bg-slate-950 dark:text-slate-400">
-              <tr>
-                <th className="whitespace-nowrap px-6 py-4">
-                  Studio Workspace
-                </th>
-                <th className="px-6 py-4">Category</th>
-                <th className="whitespace-nowrap px-6 py-4">Date &amp; Time</th>
-                <th className="px-6 py-4">Amount</th>
-                <th className="px-6 py-4">Status</th>
-                <th className="px-6 py-4 text-right">Action</th>
-              </tr>
-            </thead>
-
-            <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
-              {bookings.map((booking) => (
-                <tr
-                  key={booking._id}
-                  onClick={() => {
-                    // যদি booking-এ studioId থাকে, তবে সরাসরি studios/[id] পেজে রিডাইরেক্ট করবে
-                    if (booking.studioId) {
-                      router.push(`/studios/${booking.studioId}`);
-                    }
-                  }}
-                  className="transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer"
-                >
-                  {/* Studio Workspace */}
-                  <td className="px-6 py-4 font-semibold text-slate-900 dark:text-white">
-                    {booking.studioTitle}
-                  </td>
-
-                  {/* Category */}
-                  <td className="px-6 py-4 text-slate-600 dark:text-slate-300">
-                    {booking.category}
-                  </td>
-
-                  {/* Date & Time */}
-                  <td className="px-6 py-4 text-slate-700 dark:text-slate-300">
-                    <div>{booking.date}</div>
-                    <div className="text-xs text-slate-500 dark:text-slate-500">
-                      {booking.timeSlot}
-                    </div>
-                  </td>
-
-                  {/* Amount */}
-                  <td className="whitespace-nowrap px-6 py-4 font-bold text-indigo-600 dark:text-indigo-400">
-                    ${booking.totalAmount}
-                  </td>
-
-                  {/* Status */}
-                  <td className="px-6 py-4">
+        <div className="space-y-4">
+          {/* 1. Mobile & Tablet Layout (Cards) */}
+          <div className="grid grid-cols-1 gap-4 md:hidden">
+            {bookings.map((booking) => (
+              <div
+                key={booking._id}
+                onClick={() => {
+                  if (booking.studioId) {
+                    router.push(`/studios/${booking.studioId}`);
+                  }
+                }}
+                className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 space-y-4 cursor-pointer transition hover:border-slate-300 dark:hover:border-slate-700"
+              >
+                <div className="flex justify-between items-start gap-2">
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-bold text-slate-900 dark:text-white text-base truncate">
+                      {booking.studioTitle}
+                    </h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                      {booking.category}
+                    </p>
+                  </div>
+                  <div className="flex shrink-0">
                     {getStatusBadge(booking.status)}
-                  </td>
+                  </div>
+                </div>
 
-                  {/* Action (এখানে e.stopPropagation() দেওয়া আছে যাতে Cancel বাটনে ক্লিক করলে ডিটেইলস পেজে না যায়) */}
-                  <td
-                    className="whitespace-nowrap px-6 py-4 text-right"
+                <div className="grid grid-cols-2 gap-4 border-t border-slate-100 pt-3 dark:border-slate-800/60 text-sm">
+                  <div>
+                    <span className="text-xs text-slate-400 block mb-0.5">
+                      Date & Time
+                    </span>
+                    <span className="text-slate-700 dark:text-slate-300 font-medium block">
+                      {booking.date}
+                    </span>
+                    <span className="text-xs text-slate-500 dark:text-slate-500 block">
+                      {booking.timeSlot}
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-xs text-slate-400 block mb-0.5">
+                      Amount
+                    </span>
+                    <span className="font-bold text-indigo-600 dark:text-indigo-400 text-base">
+                      ${booking.totalAmount}
+                    </span>
+                  </div>
+                </div>
+
+                {(booking.status === "pending" ||
+                  booking.status === "confirmed") && (
+                  <div
+                    className="pt-2 border-t border-slate-100 dark:border-slate-800/60"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    {(booking.status === "pending" ||
-                      booking.status === "confirmed") && (
-                      <button
-                        type="button"
-                        disabled={cancellingId === booking._id}
-                        onClick={() => handleCancel(booking._id)}
-                        className="rounded-lg bg-red-50 px-3 py-1.5 text-xs font-medium text-red-600 transition hover:bg-red-600 hover:text-white disabled:cursor-not-allowed disabled:opacity-50 dark:bg-red-600/20 dark:text-red-400 dark:hover:bg-red-600 dark:hover:text-white"
-                      >
-                        {cancellingId === booking._id
-                          ? "Cancelling..."
-                          : "Cancel Booking"}
-                      </button>
-                    )}
-                  </td>
+                    <button
+                      type="button"
+                      disabled={cancellingId === booking._id}
+                      onClick={() => handleCancel(booking._id)}
+                      className="w-full rounded-xl bg-red-50 py-2.5 text-center text-xs font-semibold text-red-600 transition hover:bg-red-600 hover:text-white disabled:cursor-not-allowed disabled:opacity-50 dark:bg-red-600/20 dark:text-red-400 dark:hover:bg-red-600 dark:hover:text-white"
+                    >
+                      {cancellingId === booking._id
+                        ? "Cancelling..."
+                        : "Cancel Booking"}
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* 2. Desktop Layout (Table) */}
+          <div className="hidden md:block overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-xl dark:border-slate-800 dark:bg-slate-900">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-slate-100 text-xs uppercase text-slate-600 dark:bg-slate-950 dark:text-slate-400">
+                <tr>
+                  <th className="whitespace-nowrap px-6 py-4">
+                    Studio Workspace
+                  </th>
+                  <th className="px-6 py-4">Category</th>
+                  <th className="whitespace-nowrap px-6 py-4">
+                    Date &amp; Time
+                  </th>
+                  <th className="px-6 py-4">Amount</th>
+                  <th className="px-6 py-4">Status</th>
+                  <th className="px-6 py-4 text-right">Action</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+
+              <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
+                {bookings.map((booking) => (
+                  <tr
+                    key={booking._id}
+                    onClick={() => {
+                      if (booking.studioId) {
+                        router.push(`/studios/${booking.studioId}`);
+                      }
+                    }}
+                    className="transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer"
+                  >
+                    <td className="px-6 py-4 font-semibold text-slate-900 dark:text-white">
+                      {booking.studioTitle}
+                    </td>
+                    <td className="px-6 py-4 text-slate-600 dark:text-slate-300">
+                      {booking.category}
+                    </td>
+                    <td className="px-6 py-4 text-slate-700 dark:text-slate-300">
+                      <div>{booking.date}</div>
+                      <div className="text-xs text-slate-500 dark:text-slate-500">
+                        {booking.timeSlot}
+                      </div>
+                    </td>
+                    <td className="whitespace-nowrap px-6 py-4 font-bold text-indigo-600 dark:text-indigo-400">
+                      ${booking.totalAmount}
+                    </td>
+                    <td className="px-6 py-4">
+                      {getStatusBadge(booking.status)}
+                    </td>
+                    <td
+                      className="whitespace-nowrap px-6 py-4 text-right"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {(booking.status === "pending" ||
+                        booking.status === "confirmed") && (
+                        <button
+                          type="button"
+                          disabled={cancellingId === booking._id}
+                          onClick={() => handleCancel(booking._id)}
+                          className="rounded-lg bg-red-50 px-3 py-1.5 text-xs font-medium text-red-600 transition hover:bg-red-600 hover:text-white disabled:cursor-not-allowed disabled:opacity-50 dark:bg-red-600/20 dark:text-red-400 dark:hover:bg-red-600 dark:hover:text-white"
+                        >
+                          {cancellingId === booking._id
+                            ? "Cancelling..."
+                            : "Cancel Booking"}
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>
